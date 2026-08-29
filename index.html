@@ -177,21 +177,35 @@
     cursor:pointer;
   }
   .reminder-btn:hover{ opacity:0.6; }
+  .reminder-btn.active{
+    opacity: 0.6;
+    background: rgba(224,211,184,0.06);
+    border-color: rgba(224,211,184,0.4);
+  }
 
   .reminder-panel{
     margin-top: 12px;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap: 8px;
+    gap: 10px;
     font-size: 11px;
-    opacity: 0.75;
+    opacity: 0.85;
     color: var(--incense);
+    background: rgba(0,0,0,0.15);
+    border: 1px solid rgba(224,211,184,0.15);
+    border-radius: 14px;
+    padding: 16px 20px;
   }
   .reminder-panel label{
     display:flex;
     align-items:center;
-    gap: 6px;
+    gap: 8px;
+    cursor:pointer;
+  }
+  .reminder-panel input[type="checkbox"]{
+    width: 14px; height: 14px;
+    accent-color: var(--gold-bright);
     cursor:pointer;
   }
   .reminder-panel input[type="time"]{
@@ -199,9 +213,11 @@
     border: 1px solid rgba(224,211,184,0.25);
     border-radius: 6px;
     color: var(--incense);
-    font-size: 11px;
-    padding: 3px 6px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
     font-family: inherit;
+    font-variant-numeric: tabular-nums;
   }
   .reminder-status{
     font-size: 10px;
@@ -492,6 +508,7 @@
 
   reminderBtn.addEventListener('click', ()=>{
     reminderPanel.hidden = !reminderPanel.hidden;
+    reminderBtn.classList.toggle('active', !reminderPanel.hidden);
   });
 
   reminderToggle.addEventListener('change', async ()=>{
