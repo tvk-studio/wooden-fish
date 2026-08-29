@@ -149,6 +149,21 @@
   }
   .reset:hover{ opacity:0.5; }
 
+  .share-btn{
+    margin-top: 14px;
+    margin-left: 8px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--incense);
+    opacity: 0.25;
+    background:none;
+    border: 1px solid rgba(224,211,184,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor:pointer;
+  }
+  .share-btn:hover{ opacity:0.5; }
+
   .reminder-btn{
     margin-top: 10px;
     font-size: 10px;
@@ -238,6 +253,7 @@
 
   <div class="hint">TAP THE FISH · 点击木鱼</div>
   <button class="reset" id="resetBtn">重置 RESET</button>
+  <button class="share-btn" id="shareBtn">分享 SHARE</button>
   <button class="reminder-btn" id="reminderBtn">⏰ 提醒 REMINDER</button>
   <div class="reminder-panel" id="reminderPanel" hidden>
     <label><input type="checkbox" id="reminderToggle"> 每日提醒 Daily reminder</label>
@@ -339,6 +355,28 @@
     state = { total: 0, day: todayKey, todayCount: 0 };
     render();
     save();
+  });
+
+  const shareBtn = document.getElementById('shareBtn');
+  shareBtn.addEventListener('click', async ()=>{
+    const shareData = {
+      title: '功德木鱼 Merit Fish',
+      text: '我已经敲了 ' + state.total + ' 次木鱼，一起来累积功德吧 🐟',
+      url: location.href
+    };
+    try{
+      if(navigator.share){
+        await navigator.share(shareData);
+      } else if(navigator.clipboard){
+        await navigator.clipboard.writeText(shareData.url);
+        const el = document.createElement('div');
+        el.className = 'float-text';
+        el.textContent = '链接已复制 Link copied';
+        el.style.left = '50%';
+        stage.appendChild(el);
+        setTimeout(()=>el.remove(), 950);
+      }
+    }catch(e){ /* user cancelled share, or clipboard unavailable */ }
   });
 
   load();
