@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电子木鱼 · Merit Counter</title>
+<link rel="manifest" href="mokugyo-manifest.json">
+<link rel="apple-touch-icon" href="mokugyo-apple-touch-icon.png">
+<meta name="theme-color" content="#3a0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="木鱼">
+<meta name="mobile-web-app-capable" content="yes">
+
+<style>
+  :root{
+    --lacquer: #3a0f0f;
+    --lacquer-deep: #240808;
+    --gold: #c9a24b;
+    --gold-bright: #e8c76f;
+    --incense: #e0d3b8;
+    --wood: #6b3a22;
+    --wood-dark: #47240f;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{
+    margin:0; height:100%; width:100%;
+    background:
+      radial-gradient(ellipse at 50% 20%, #4a1414 0%, var(--lacquer) 45%, var(--lacquer-deep) 100%);
+    overflow:hidden;
+    font-family: "Songti SC","Noto Serif SC","STSong", serif;
+    color: var(--incense);
+    user-select:none;
+  }
+  .stage{
+    position:relative;
+    height:100%; width:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 24px;
+  }
+  .title{
+    letter-spacing: 0.4em;
+    font-size: 14px;
+    color: var(--gold);
+    opacity: 0.75;
+    margin-bottom: 6px;
+    text-align:center;
+  }
+  .subtitle{
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--incense);
+    opacity: 0.4;
+    margin-bottom: 28px;
+    text-align:center;
+  }
+  .counter-wrap{
+    text-align:center;
+    margin-bottom: 18px;
+  }
+  .merit-label{
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+  .merit-number{
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    text-shadow: 0 0 24px rgba(232,199,111,0.35);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .today{
+    font-size: 12px;
+    color: var(--incense);
+    opacity: 0.5;
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+  .fish-zone{
+    position: relative;
+    width: min(70vw, 340px);
+    height: min(70vw, 340px);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .fish-zone svg{
+    width:100%; height:100%;
+    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.55));
+    transition: transform 60ms ease-out;
+    transform-origin: 50% 55%;
+  }
+  .fish-zone.hit svg{ transform: scale(0.94) rotate(-1deg); }
+
+  .float-text{
+    position:absolute;
+    left:50%; top:38%;
+    transform: translate(-50%,-50%);
+    font-size: 20px;
+    font-weight:600;
+    color: var(--gold-bright);
+    pointer-events:none;
+    animation: floatUp 900ms ease-out forwards;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    white-space:nowrap;
+  }
+  @keyframes floatUp{
+    0%   { opacity: 0; transform: translate(-50%,-40%) scale(0.8); }
+    15%  { opacity: 1; transform: translate(-50%,-60%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-140%) scale(1.05); }
+  }
+
+  .ripple{
+    position:absolute;
+    left:50%; top:52%;
+    width: 10px; height:10px;
+    border-radius:50%;
+    border: 1.5px solid var(--gold);
+    transform: translate(-50%,-50%);
+    opacity: 0.6;
+    pointer-events:none;
+    animation: rippleOut 650ms ease-out forwards;
+  }
+  @keyframes rippleOut{
+    0%   { width:10px; height:10px; opacity:0.6; }
+    100% { width: 260px; height:260px; opacity:0; }
+  }
+
+  .hint{
+    margin-top: 22px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--incense);
+    opacity: 0.35;
+  }
+  .reset{
+    margin-top: 14px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--incense);
+    opacity: 0.25;
+    background:none;
+    border: 1px solid rgba(224,211,184,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor:pointer;
+  }
+  .reset:hover{ opacity:0.5; }
+
+  @media (prefers-reduced-motion: reduce){
+    .float-text, .ripple { animation: none !important; opacity:0; }
+    .fish-zone svg { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="title">功 德 木 鱼</div>
+  <div class="subtitle">ELECTRONIC WOODEN FISH</div>
+
+  <div class="counter-wrap">
+    <div class="merit-label">总功德 · TOTAL MERIT</div>
+    <div class="merit-number" id="meritNumber">0</div>
+    <div class="today" id="todayLine">今日 0 次</div>
+  </div>
+
+  <div class="fish-zone" id="fishZone">
+    <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="75%">
+          <stop offset="0%" stop-color="#8a4a26"/>
+          <stop offset="60%" stop-color="#6b3a22"/>
+          <stop offset="100%" stop-color="#47240f"/>
+        </radialGradient>
+        <linearGradient id="rimGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#c9a24b"/>
+          <stop offset="100%" stop-color="#8a6a2e"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="110" cy="120" rx="92" ry="68" fill="url(#bodyGrad)" stroke="url(#rimGrad)" stroke-width="3"/>
+      <path d="M110 52 C130 60 150 78 150 120 C150 162 130 180 110 188"
+            fill="none" stroke="#c9a24b" stroke-opacity="0.55" stroke-width="2"/>
+      <path d="M60 90 Q80 85 100 92" fill="none" stroke="#c9a24b" stroke-opacity="0.4" stroke-width="2"/>
+      <path d="M55 130 Q78 138 100 132" fill="none" stroke="#c9a24b" stroke-opacity="0.4" stroke-width="2"/>
+      <circle cx="70" cy="105" r="7" fill="#241206"/>
+      <circle cx="72" cy="103" r="2" fill="#e8c76f"/>
+      <path d="M18 120 C30 100 45 96 60 108 C48 118 48 128 60 138 C45 148 30 142 18 120 Z"
+            fill="#c9a24b" fill-opacity="0.85"/>
+    </svg>
+  </div>
+
+  <div class="hint">TAP THE FISH · 点击木鱼</div>
+  <button class="reset" id="resetBtn">重置 RESET</button>
+</div>
+
+<script>
+(function(){
+  const fishZone = document.getElementById('fishZone');
+  const meritNumber = document.getElementById('meritNumber');
+  const todayLine = document.getElementById('todayLine');
+  const stage = document.querySelector('.stage');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const todayKey = new Date().toISOString().slice(0,10);
+  let state = { total: 0, day: todayKey, todayCount: 0 };
+
+  const merits = ['功德+1','善哉','阿弥陀佛','福报+1','功德无量','消业障'];
+
+  function load(){
+    try{
+      const raw = localStorage.getItem('mokugyo-state');
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed.day === todayKey){
+          state = parsed;
+        } else {
+          state = { total: parsed.total || 0, day: todayKey, todayCount: 0 };
+        }
+      }
+    }catch(e){ /* no saved state yet */ }
+    render();
+  }
+
+  function save(){
+    try{
+      localStorage.setItem('mokugyo-state', JSON.stringify(state));
+    }catch(e){ /* best effort */ }
+  }
+
+  function render(){
+    meritNumber.textContent = state.total.toLocaleString();
+    todayLine.textContent = '今日 ' + state.todayCount + ' 次';
+  }
+
+  let audioCtx;
+  function knock(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(90, now + 0.12);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.5, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.24);
+    }catch(e){ /* audio not available */ }
+  }
+
+  function spawnFloat(){
+    const el = document.createElement('div');
+    el.className = 'float-text';
+    el.textContent = merits[Math.floor(Math.random()*merits.length)];
+    el.style.left = (48 + Math.random()*4) + '%';
+    stage.appendChild(el);
+    setTimeout(()=>el.remove(), 950);
+  }
+
+  function spawnRipple(){
+    const el = document.createElement('div');
+    el.className = 'ripple';
+    fishZone.appendChild(el);
+    setTimeout(()=>el.remove(), 700);
+  }
+
+  function tap(){
+    state.total += 1;
+    state.todayCount += 1;
+    render();
+    save();
+    knock();
+    spawnFloat();
+    spawnRipple();
+    fishZone.classList.add('hit');
+    setTimeout(()=>fishZone.classList.remove('hit'), 90);
+  }
+
+  fishZone.addEventListener('click', tap);
+  fishZone.addEventListener('touchstart', (e)=>{ e.preventDefault(); tap(); }, {passive:false});
+
+  resetBtn.addEventListener('click', ()=>{
+    state = { total: 0, day: todayKey, todayCount: 0 };
+    render();
+    save();
+  });
+
+  load();
+
+  // Register the service worker so the app can be installed and opened offline once added to the home screen.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('mokugyo-sw.js').catch(()=>{ /* offline install still works without it */ });
+  }
+})();
+</script>
+</body>
+</html>
