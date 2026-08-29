@@ -149,6 +149,51 @@
   }
   .reset:hover{ opacity:0.5; }
 
+  .reminder-btn{
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--incense);
+    opacity: 0.35;
+    background:none;
+    border: 1px solid rgba(224,211,184,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor:pointer;
+  }
+  .reminder-btn:hover{ opacity:0.6; }
+
+  .reminder-panel{
+    margin-top: 12px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 8px;
+    font-size: 11px;
+    opacity: 0.75;
+    color: var(--incense);
+  }
+  .reminder-panel label{
+    display:flex;
+    align-items:center;
+    gap: 6px;
+    cursor:pointer;
+  }
+  .reminder-panel input[type="time"]{
+    background: rgba(224,211,184,0.08);
+    border: 1px solid rgba(224,211,184,0.25);
+    border-radius: 6px;
+    color: var(--incense);
+    font-size: 11px;
+    padding: 3px 6px;
+    font-family: inherit;
+  }
+  .reminder-status{
+    font-size: 10px;
+    opacity: 0.6;
+    text-align:center;
+  }
+
   @media (prefers-reduced-motion: reduce){
     .float-text, .ripple { animation: none !important; opacity:0; }
     .fish-zone svg { transition: none; }
@@ -193,6 +238,12 @@
 
   <div class="hint">TAP THE FISH · 点击木鱼</div>
   <button class="reset" id="resetBtn">重置 RESET</button>
+  <button class="reminder-btn" id="reminderBtn">⏰ 提醒 REMINDER</button>
+  <div class="reminder-panel" id="reminderPanel" hidden>
+    <label><input type="checkbox" id="reminderToggle"> 每日提醒 Daily reminder</label>
+    <input type="time" id="reminderTime" value="08:00">
+    <div class="reminder-status" id="reminderStatus"></div>
+  </div>
 </div>
 
 <script>
@@ -296,6 +347,153 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('mokugyo-sw.js').catch(()=>{ /* offline install still works without it */ });
   }
+
+  const reminderBtn = document.getElementById('reminderBtn');
+  const reminderPanel = document.getElementById('reminderPanel');
+  const reminderToggle = document.getElementById('reminderToggle');
+  const reminderTime = document.getElementById('reminderTime');
+  const reminderStatus = document.getElementById('reminderStatus');
+
+  let reminderState = { enabled: false, time: '08:00', lastNotified: '' };
+
+  function loadReminder(){
+    try{
+      const raw = localStorage.getItem('mokugyo-reminder');
+      if(raw) reminderState = Object.assign(reminderState, JSON.parse(raw));
+    }catch(e){ /* no saved reminder state yet */ }
+    reminderToggle.checked = reminderState.enabled;
+    reminderTime.value = reminderState.time;
+    renderReminderStatus();
+  }
+
+  function saveReminder(){
+    try{
+      localStorage.setItem('mokugyo-reminder', JSON.stringify(reminderState));
+    }catch(e){ /* best effort */ }
+  }
+
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function renderReminderStatus(){
+    if(!('Notification' in window)){
+      reminderStatus.textContent = '此浏览器不支持通知 Not supported';
+      return;
+    }
+    if(!reminderState.enabled){
+      reminderStatus.textContent = '';
+      return;
+    }
+    if(Notification.permission === 'denied'){
+      reminderStatus.textContent = '通知权限被拒绝 Permission denied';
+      return;
+    }
+    if(Notification.permission !== 'granted'){
+      reminderStatus.textContent = '需要通知权限 Needs permission';
+      return;
+    }
+    reminderStatus.textContent = '每天 ' + reminderState.time + ' 提醒你敲木鱼 Reminds you daily at ' + reminderState.time;
+  }
+
+  async function fireReminderNotification(){
+    const title = '功德木鱼 · 敲木鱼时间到了';
+    const opts = {
+      body: '今天还没敲木鱼，来累积一点功德吧 🐟',
+      icon: 'mokugyo-icon-192.png',
+      badge: 'mokugyo-icon-192.png',
+      tag: 'mokugyo-daily-reminder'
+    };
+    try{
+      if('serviceWorker' in navigator){
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(title, opts);
+      } else {
+        new Notification(title, opts);
+      }
+    }catch(e){
+      try{ new Notification(title, opts); }catch(e2){ /* notifications unavailable */ }
+    }
+    reminderState.lastNotified = todayStr();
+    saveReminder();
+  }
+
+  function checkReminder(){
+    if(!reminderState.enabled) return;
+    if(!('Notification' in window) || Notification.permission !== 'granted') return;
+    if(reminderState.lastNotified === todayStr()) return;
+    const now = new Date();
+    const [h,m] = (reminderState.time || '08:00').split(':').map(Number);
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+    if(now >= target){
+      fireReminderNotification();
+    }
+  }
+
+  async function registerPeriodicSync(){
+    try{
+      if(!('serviceWorker' in navigator)) return;
+      const reg = await navigator.serviceWorker.ready;
+      if(!reg.periodicSync) return;
+      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if(status.state === 'granted'){
+        await reg.periodicSync.register('mokugyo-daily-reminder', { minInterval: 20*60*60*1000 });
+      }
+    }catch(e){ /* periodic background sync not supported */ }
+  }
+
+  async function unregisterPeriodicSync(){
+    try{
+      if(!('serviceWorker' in navigator)) return;
+      const reg = await navigator.serviceWorker.ready;
+      if(!reg.periodicSync) return;
+      await reg.periodicSync.unregister('mokugyo-daily-reminder');
+    }catch(e){ /* best effort */ }
+  }
+
+  reminderBtn.addEventListener('click', ()=>{
+    reminderPanel.hidden = !reminderPanel.hidden;
+  });
+
+  reminderToggle.addEventListener('change', async ()=>{
+    if(reminderToggle.checked){
+      if(!('Notification' in window)){
+        reminderToggle.checked = false;
+        renderReminderStatus();
+        return;
+      }
+      let permission = Notification.permission;
+      if(permission === 'default'){
+        permission = await Notification.requestPermission();
+      }
+      if(permission === 'granted'){
+        reminderState.enabled = true;
+        saveReminder();
+        registerPeriodicSync();
+      } else {
+        reminderToggle.checked = false;
+        reminderState.enabled = false;
+        saveReminder();
+      }
+    } else {
+      reminderState.enabled = false;
+      saveReminder();
+      unregisterPeriodicSync();
+    }
+    renderReminderStatus();
+  });
+
+  reminderTime.addEventListener('change', ()=>{
+    reminderState.time = reminderTime.value;
+    reminderState.lastNotified = '';
+    saveReminder();
+    renderReminderStatus();
+  });
+
+  loadReminder();
+  checkReminder();
+  setInterval(checkReminder, 60000);
 })();
 </script>
 </body>
