@@ -1,11 +1,11 @@
 {
-  "name": "功德木鱼 Merit Fish",
+  "name": "木魚堂 Wooden Fish",
   "short_name": "木鱼",
-  "description": "Tap the wooden fish, accumulate merit.",
+  "description": "Tap the wooden fish, keep a streak, hang wishes, and sit with others in daily practice.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#240808",
-  "theme_color": "#3a0f0f",
+  "background_color": "#1a0708",
+  "theme_color": "#1a0708",
   "orientation": "portrait",
   "icons": [
     { "src": "mokugyo-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
