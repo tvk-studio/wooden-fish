@@ -2,328 +2,398 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>电子木鱼 · Merit Counter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>木魚堂 · Wooden Fish</title>
 <link rel="manifest" href="mokugyo-manifest.json">
 <link rel="apple-touch-icon" href="mokugyo-apple-touch-icon.png">
-<meta name="theme-color" content="#3a0f0f">
+<meta name="theme-color" content="#1a0708">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="木鱼">
+<meta name="apple-mobile-web-app-title" content="木鱼堂">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --lacquer: #3a0f0f;
-    --lacquer-deep: #240808;
-    --gold: #c9a24b;
-    --gold-bright: #e8c76f;
-    --incense: #e0d3b8;
-    --wood: #6b3a22;
-    --wood-dark: #47240f;
+    --gold: #d8ab52;
+    --gold-bright: #f2d38a;
+    --gold-dim: #c69a4c;
+    --ink: #e9d5b1;
   }
-  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{
-    margin:0; height:100%; width:100%;
-    background:
-      radial-gradient(ellipse at 50% 20%, #4a1414 0%, var(--lacquer) 45%, var(--lacquer-deep) 100%);
-    overflow:hidden;
-    font-family: "Songti SC","Noto Serif SC","STSong", serif;
-    color: var(--incense);
-    user-select:none;
+    margin:0; width:100%; min-height:100%;
+    background:#171313;
+    font-family:"Noto Serif SC",serif;
+    color:var(--ink);
+    overscroll-behavior:none;
   }
-  .stage{
+  a{ color:var(--gold); text-decoration:none; }
+  button{ font-family:inherit; }
+  #stage{
     position:relative;
-    height:100%; width:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding: 24px;
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    min-height:100dvh;
+    overflow:hidden;
+    background:radial-gradient(120% 78% at 50% -8%,#4a1a19 0%,#2c0d0f 46%,#1a0708 100%);
   }
-  .title{
-    letter-spacing: 0.4em;
-    font-size: 14px;
-    color: var(--gold);
-    opacity: 0.75;
-    margin-bottom: 6px;
-    text-align:center;
+  #stage::before{
+    content:"";
+    position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background:radial-gradient(60% 32% at 50% 8%,rgba(216,171,82,.16),transparent 70%);
   }
-  .subtitle{
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: var(--incense);
-    opacity: 0.4;
-    margin-bottom: 28px;
-    text-align:center;
+  #app{
+    position:relative;
+    min-height:100vh;
+    min-height:100dvh;
+    padding-bottom:104px;
+    box-sizing:border-box;
   }
-  .counter-wrap{
-    text-align:center;
-    margin-bottom: 18px;
-  }
-  .merit-label{
-    font-size: 12px;
-    letter-spacing: 0.3em;
-    color: var(--gold);
-    opacity: 0.7;
-  }
-  .merit-number{
-    font-size: 56px;
-    font-weight: 700;
-    color: var(--gold-bright);
-    text-shadow: 0 0 24px rgba(232,199,111,0.35);
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-  }
-  .today{
-    font-size: 12px;
-    color: var(--incense);
-    opacity: 0.5;
-    margin-top: 4px;
-    letter-spacing: 0.1em;
-  }
-  .fish-zone{
-    position: relative;
-    width: min(70vw, 340px);
-    height: min(70vw, 340px);
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-  }
-  .fish-zone svg{
-    width:100%; height:100%;
-    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.55));
-    transition: transform 60ms ease-out;
-    transform-origin: 50% 55%;
-  }
-  .fish-zone.hit svg{ transform: scale(0.94) rotate(-1deg); }
+  #modalRoot{ position:relative; z-index:30; }
 
-  .float-text{
-    position:absolute;
-    left:50%; top:38%;
-    transform: translate(-50%,-50%);
-    font-size: 20px;
-    font-weight:600;
-    color: var(--gold-bright);
-    pointer-events:none;
-    animation: floatUp 900ms ease-out forwards;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    white-space:nowrap;
-  }
-  @keyframes floatUp{
-    0%   { opacity: 0; transform: translate(-50%,-40%) scale(0.8); }
-    15%  { opacity: 1; transform: translate(-50%,-60%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%,-140%) scale(1.05); }
-  }
+  @keyframes omSway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
+  @keyframes omRise{0%{opacity:0;transform:translateY(0) scale(.85)}18%{opacity:1}100%{opacity:0;transform:translateY(-96px) scale(1.05)}}
+  @keyframes omRipple{0%{opacity:.55;transform:scale(.72)}100%{opacity:0;transform:scale(1.5)}}
+  @keyframes omSmoke{0%{opacity:0;transform:translate(0,0) scale(.6)}25%{opacity:.5}100%{opacity:0;transform:translate(14px,-70px) scale(1.9)}}
+  @keyframes omSeal{0%{opacity:0;transform:scale(2.1) rotate(-14deg)}55%{opacity:1;transform:scale(.92) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+  @keyframes omUnfurl{0%{opacity:0;transform:scaleY(.04);transform-origin:top}60%{opacity:1}100%{opacity:1;transform:scaleY(1);transform-origin:top}}
+  @keyframes omEmber{0%,100%{opacity:.35}50%{opacity:1}}
 
-  .ripple{
-    position:absolute;
-    left:50%; top:52%;
-    width: 10px; height:10px;
-    border-radius:50%;
-    border: 1.5px solid var(--gold);
-    transform: translate(-50%,-50%);
-    opacity: 0.6;
-    pointer-events:none;
-    animation: rippleOut 650ms ease-out forwards;
-  }
-  @keyframes rippleOut{
-    0%   { width:10px; height:10px; opacity:0.6; }
-    100% { width: 260px; height:260px; opacity:0; }
-  }
+  /* --- header --- */
+  .hdr-rule{ display:flex; align-items:center; justify-content:center; gap:12px; color:var(--gold-dim); padding-top:28px; }
+  .hdr-rule .line{ height:1px; width:44px; background:linear-gradient(90deg,transparent,rgba(198,154,76,.6)); }
+  .hdr-rule .line.r{ background:linear-gradient(270deg,transparent,rgba(198,154,76,.6)); }
+  .hdr-rule .label{ font-size:11px; letter-spacing:.42em; }
+  .page-title{ font-size:11px; letter-spacing:.42em; color:var(--gold-dim); text-align:center; padding-top:28px; }
+  .page-sub{ margin:16px 22px 0; font-size:11.5px; line-height:1.8; color:rgba(233,213,177,.45); text-align:center; }
 
-  .hint{
-    margin-top: 22px;
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--incense);
-    opacity: 0.35;
-  }
-  .reset{
-    margin-top: 14px;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--incense);
-    opacity: 0.25;
-    background:none;
-    border: 1px solid rgba(224,211,184,0.25);
-    border-radius: 20px;
-    padding: 5px 14px;
-    cursor:pointer;
-  }
-  .reset:hover{ opacity:0.5; }
+  /* --- altar --- */
+  .today-wrap{ margin-top:34px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .today-label{ font-size:9.5px; letter-spacing:.3em; color:rgba(233,213,177,.45); }
+  .today-num{ font-size:62px; font-weight:600; line-height:1; color:var(--gold-bright); text-shadow:0 0 26px rgba(216,171,82,.35); font-variant-numeric:tabular-nums; }
+  .total-line{ font-size:11px; letter-spacing:.16em; color:rgba(233,213,177,.4); }
 
-  .share-btn{
-    margin-top: 14px;
-    margin-left: 8px;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--incense);
-    opacity: 0.25;
-    background:none;
-    border: 1px solid rgba(224,211,184,0.25);
-    border-radius: 20px;
-    padding: 5px 14px;
-    cursor:pointer;
-  }
-  .share-btn:hover{ opacity:0.5; }
+  .fish-area{ position:relative; margin-top:26px; display:flex; flex-direction:column; align-items:center; padding:0 26px; }
+  .floater{ position:absolute; top:24px; font-size:14px; color:var(--gold-bright); letter-spacing:.1em; animation:omRise 1.15s ease-out forwards; pointer-events:none; z-index:5; }
+  .fish-btn{ position:relative; width:196px; height:196px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .11s ease-out; border:none; background:none; padding:0; }
+  .fish-btn:active{ transform:scale(.945); }
+  .ripple{ position:absolute; width:196px; height:196px; border-radius:50%; border:1px solid rgba(216,171,82,.5); animation:omRipple .9s ease-out forwards; }
+  .fish-glow{ position:absolute; width:176px; height:176px; border-radius:50%; background:radial-gradient(60% 55% at 50% 30%,rgba(216,171,82,.13),transparent 72%); }
+  .fish-body{ position:relative; width:150px; height:112px; border-radius:50% 50% 46% 46%/56% 56% 44% 44%; background:radial-gradient(70% 80% at 34% 26%,#8a5a2b 0%,#5d3418 52%,#331a0d 100%); box-shadow:0 18px 34px rgba(0,0,0,.5),inset 0 -8px 18px rgba(0,0,0,.45),inset 0 6px 12px rgba(216,171,82,.18); }
+  .fish-mouth{ position:absolute; left:22px; right:22px; top:58%; height:9px; border-radius:9px; background:linear-gradient(180deg,#1b0d06,#2e1a0d); box-shadow:inset 0 2px 3px rgba(0,0,0,.8); }
+  .fish-shine{ position:absolute; left:30px; top:22px; width:36px; height:14px; border-radius:50%; background:rgba(255,235,200,.13); filter:blur(3px); }
+  .tap-hint{ margin-top:14px; font-size:9.5px; letter-spacing:.34em; color:rgba(233,213,177,.34); }
 
-  .reminder-btn{
-    margin-top: 10px;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--incense);
-    opacity: 0.35;
-    background:none;
-    border: 1px solid rgba(224,211,184,0.25);
-    border-radius: 20px;
-    padding: 5px 14px;
-    cursor:pointer;
-  }
-  .reminder-btn:hover{ opacity:0.6; }
-  .reminder-btn.active{
-    opacity: 0.6;
-    background: rgba(224,211,184,0.06);
-    border-color: rgba(224,211,184,0.4);
-  }
+  .incense{ position:absolute; right:-4px; bottom:6px; width:64px; height:124px; z-index:8; cursor:pointer; background:none; border:none; padding:0; }
+  .incense-stick{ position:absolute; bottom:32px; left:30px; width:3px; background:linear-gradient(180deg,#6d4a2a,#8a6a44); transition:height 1s linear; }
+  .incense-ember{ position:absolute; left:31px; width:5px; height:5px; border-radius:50%; background:#e6883c; box-shadow:0 0 10px 3px rgba(230,136,60,.6); animation:omEmber 2.6s ease-in-out infinite; transition:bottom 1s linear; }
+  .incense-smoke{ position:absolute; width:9px; height:9px; border-radius:50%; background:rgba(236,224,196,.5); filter:blur(4px); animation:omSmoke 5.2s linear infinite; transition:bottom 1s linear; }
+  .incense-holder{ position:absolute; bottom:26px; left:18px; width:28px; height:9px; border-radius:4px 4px 6px 6px; background:linear-gradient(180deg,#7b2f28,#4a1a16); }
+  .incense-label{ position:absolute; bottom:0; left:0; width:64px; text-align:center; font-size:9.5px; letter-spacing:.1em; font-variant-numeric:tabular-nums; }
 
-  .reminder-panel{
-    margin-top: 12px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap: 10px;
-    font-size: 11px;
-    opacity: 0.85;
-    color: var(--incense);
-    background: rgba(0,0,0,0.15);
-    border: 1px solid rgba(224,211,184,0.15);
-    border-radius: 14px;
-    padding: 16px 20px;
-  }
-  .reminder-panel label{
-    display:flex;
-    align-items:center;
-    gap: 8px;
-    cursor:pointer;
-  }
-  .reminder-panel input[type="checkbox"]{
-    width: 14px; height: 14px;
-    accent-color: var(--gold-bright);
-    cursor:pointer;
-  }
-  .reminder-panel input[type="time"]{
-    background: rgba(224,211,184,0.08);
-    border: 1px solid rgba(224,211,184,0.25);
-    border-radius: 6px;
-    color: var(--incense);
-    font-size: 14px;
-    letter-spacing: 0.05em;
-    padding: 4px 12px;
-    font-family: inherit;
-    font-variant-numeric: tabular-nums;
-  }
-  .reminder-status{
-    font-size: 10px;
-    opacity: 0.6;
-    text-align:center;
-  }
+  .burn-toast{ position:absolute; left:26px; right:70px; bottom:0; z-index:9; padding:13px 16px; border-radius:8px; border:1px solid rgba(216,171,82,.3); background:rgba(26,7,8,.9); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .burn-toast .t1{ font-size:12.5px; color:var(--gold-bright); letter-spacing:.1em; }
+  .burn-toast .t2{ font-size:10px; color:rgba(233,213,177,.45); letter-spacing:.08em; margin-top:4px; }
+  .burn-toast button{ padding:13px 18px; border:1px solid rgba(216,171,82,.4); border-radius:4px; font-size:11px; letter-spacing:.16em; color:var(--gold); background:none; cursor:pointer; }
+
+  .beam-wrap{ position:relative; margin-top:34px; padding:0 26px 24px; }
+  .beam{ height:11px; border-radius:3px; background:linear-gradient(180deg,#a3712f,#5f3a17 60%,#3a2210); box-shadow:0 5px 14px rgba(0,0,0,.5); }
+  .plaques{ display:flex; justify-content:space-between; gap:12px; padding:0 10px; }
+  .plaque-hang{ display:flex; flex-direction:column; align-items:center; transform-origin:top center; animation:omSway 4.6s ease-in-out infinite; }
+  .plaque-hang.p2{ animation-duration:5.4s; animation-delay:.7s; }
+  .plaque-hang.p3{ animation-duration:4.1s; animation-delay:1.3s; }
+  .cord{ width:1px; height:16px; background:rgba(233,213,177,.4); }
+  .plaque{ position:relative; width:82px; padding:16px 0 18px; text-align:center; cursor:pointer; border-radius:6px; clip-path:polygon(50% 0,100% 15%,100% 100%,0 100%,0 15%); background:linear-gradient(180deg,#c08d52,#8a5c2e 55%,#6d4520); box-shadow:0 8px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,235,200,.25); border:none; }
+  .plaque .zh{ font-size:15px; letter-spacing:.2em; color:#3a2211; writing-mode:vertical-rl; margin:0 auto; }
+  .plaque .en{ margin-top:8px; font-size:9px; letter-spacing:.2em; color:#f3e2c4; text-shadow:0 1px 2px rgba(0,0,0,.5); }
+  .seal{ position:absolute; top:26px; left:50%; margin-left:-27px; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(60% 60% at 40% 30%,#c4352c,#8e1f1a); border:2px solid rgba(255,220,200,.28); box-shadow:0 6px 14px rgba(0,0,0,.5); animation:omSeal .5s cubic-bezier(.2,1.4,.4,1) forwards; }
+  .seal span{ font-size:17px; color:#f6e2c8; letter-spacing:.04em; }
+
+  .sheet{ position:absolute; left:10px; right:10px; bottom:118px; padding:20px 22px 22px; border-radius:4px; background:linear-gradient(180deg,#efe4c8,#ddcda8); box-shadow:0 22px 44px rgba(0,0,0,.55); animation:omUnfurl .42s ease-out forwards; z-index:15; }
+  .sheet-head{ display:flex; align-items:baseline; justify-content:space-between; }
+  .sheet-title{ font-size:15px; color:#4a3418; letter-spacing:.14em; }
+  .sheet-close{ font-size:12px; color:rgba(74,52,24,.6); cursor:pointer; letter-spacing:.1em; padding:12px 14px; margin:-12px -14px; background:none; border:none; }
+  .reminder-time-wrap{ margin-top:14px; position:relative; }
+  .reminder-time{ font-size:44px; font-weight:600; color:#3a2a18; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+  .reminder-time-input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .check-row{ margin-top:12px; display:flex; align-items:center; gap:10px; min-height:44px; cursor:pointer; background:none; border:none; padding:0; text-align:left; }
+  .check-box{ width:18px; height:18px; border:1px solid rgba(74,52,24,.5); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#8e1f1a; flex:none; }
+  .check-label{ font-size:12px; color:rgba(74,52,24,.8); letter-spacing:.06em; }
+  .sheet-rule{ margin-top:14px; height:1px; background:rgba(74,52,24,.16); }
+  .sheet-note{ margin-top:10px; font-size:10px; line-height:1.6; color:rgba(74,52,24,.55); }
+
+  /* --- merit --- */
+  .scroll-pad{ padding:0 26px 24px; overflow:auto; }
+  .merit-card{ margin-top:28px; padding:22px; border-radius:10px; border:1px solid rgba(216,171,82,.24); background:linear-gradient(180deg,rgba(216,171,82,.09),rgba(216,171,82,.02)); }
+  .merit-card-top{ display:flex; align-items:flex-end; justify-content:space-between; }
+  .stat-label{ font-size:9.5px; letter-spacing:.28em; color:rgba(233,213,177,.45); }
+  .stat-num{ margin-top:6px; font-size:38px; font-weight:600; color:var(--gold-bright); line-height:1; }
+  .stat-num .unit{ font-size:14px; font-weight:400; margin-left:6px; color:rgba(233,213,177,.5); }
+  .bars{ margin-top:22px; display:grid; grid-template-columns:repeat(7,1fr); gap:8px; align-items:end; height:76px; }
+  .bar{ border-radius:2px; background:linear-gradient(180deg,#d8ab52,rgba(216,171,82,.25)); min-height:6%; }
+  .bar.today{ background:linear-gradient(180deg,#f2d38a,#c69a4c); }
+  .bar-labels{ margin-top:8px; display:grid; grid-template-columns:repeat(7,1fr); gap:8px; font-size:9px; color:rgba(233,213,177,.35); text-align:center; }
+  .sec-label{ margin-top:26px; font-size:9.5px; letter-spacing:.3em; color:rgba(233,213,177,.4); }
+  .sessions{ margin-top:12px; display:flex; flex-direction:column; gap:1px; }
+  .session-row{ display:flex; align-items:center; justify-content:space-between; padding:15px 2px; border-bottom:1px solid rgba(216,171,82,.14); }
+  .session-row .name{ font-size:14px; color:var(--ink); }
+  .session-row .meta{ font-size:10px; color:rgba(233,213,177,.4); letter-spacing:.1em; margin-top:4px; }
+  .session-row .val{ font-size:15px; color:var(--gold-bright); font-variant-numeric:tabular-nums; }
+
+  /* --- wish --- */
+  .wish-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:0 4px; }
+  .wish-hang{ display:flex; flex-direction:column; align-items:center; transform-origin:top center; animation:omSway 5s ease-in-out infinite; }
+  .wish-cord{ width:1px; height:14px; background:rgba(233,213,177,.35); }
+  .wish-plaque{ position:relative; width:100%; padding:14px 6px 16px; text-align:center; cursor:pointer; clip-path:polygon(50% 0,100% 14%,100% 100%,0 100%,0 14%); background:linear-gradient(180deg,#c08d52,#8a5c2e 55%,#6d4520); box-shadow:0 8px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,235,200,.22); border:none; }
+  .wish-plaque .zh{ font-size:13px; line-height:1.2; color:#3a2211; letter-spacing:.14em; writing-mode:vertical-rl; white-space:nowrap; margin:0 auto; height:88px; display:flex; align-items:center; justify-content:center; }
+  .wish-plaque .meta{ margin-top:7px; font-size:10px; letter-spacing:.1em; color:#f3e2c4; text-shadow:0 1px 2px rgba(0,0,0,.5); }
+  .lamp-dot{ position:absolute; top:8px; right:8px; width:6px; height:6px; border-radius:50%; }
+  .add-wish{ margin-top:30px; padding:14px 0; text-align:center; border:1px dashed rgba(216,171,82,.4); border-radius:6px; font-size:12px; letter-spacing:.24em; color:var(--gold); cursor:pointer; background:none; width:100%; }
+  .wish-hint{ margin:14px 0 0; text-align:center; font-size:10px; letter-spacing:.12em; color:rgba(233,213,177,.3); }
+
+  .editor-overlay{ position:fixed; inset:0; z-index:40; background:rgba(12,4,5,.72); backdrop-filter:blur(3px); display:flex; align-items:flex-end; justify-content:center; }
+  .editor-sheet{ width:100%; max-width:480px; padding:26px 26px 40px; box-sizing:border-box; background:linear-gradient(180deg,#efe4c8,#ddcda8); box-shadow:0 -22px 44px rgba(0,0,0,.55); animation:omUnfurl .34s ease-out forwards; }
+  .field-label{ margin-top:18px; font-size:9.5px; letter-spacing:.28em; color:rgba(74,52,24,.5); }
+  .field-label:first-of-type{ margin-top:18px; }
+  .field-input{ margin-top:8px; width:100%; box-sizing:border-box; padding:11px 12px; font-family:'Noto Serif SC',serif; font-size:19px; letter-spacing:.16em; color:#3a2a18; background:rgba(255,255,255,.5); border:1px solid rgba(74,52,24,.3); border-radius:3px; outline:none; }
+  .field-input.small{ font-size:13px; letter-spacing:.1em; padding:9px 12px; }
+  .editor-actions{ margin-top:22px; display:flex; gap:10px; }
+  .btn-save{ flex:1; padding:13px 0; text-align:center; border-radius:4px; background:linear-gradient(180deg,#8e1f1a,#6d1512); color:#f6e2c8; font-size:13px; letter-spacing:.24em; cursor:pointer; border:none; }
+  .btn-del{ padding:13px 20px; text-align:center; border-radius:4px; border:1px solid rgba(74,52,24,.35); color:rgba(74,52,24,.75); font-size:13px; letter-spacing:.2em; cursor:pointer; background:none; }
+
+  /* --- me / settings --- */
+  .rows{ margin-top:30px; display:flex; flex-direction:column; gap:1px; }
+  .row{ display:flex; align-items:center; justify-content:space-between; padding:17px 2px; border-bottom:1px solid rgba(216,171,82,.14); cursor:pointer; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left; color:inherit; }
+  .row .name{ font-size:14px; color:var(--ink); }
+  .row .sub{ font-size:10px; color:rgba(233,213,177,.38); margin-top:4px; }
+  .row .val{ font-size:12px; letter-spacing:.14em; color:var(--gold-bright); }
+  .sangha-card{ margin-top:34px; padding:20px; border-radius:10px; border:1px solid rgba(216,171,82,.2); cursor:pointer; background:none; width:100%; text-align:left; color:inherit; }
+  .sangha-card-top{ display:flex; align-items:center; justify-content:space-between; }
+  .sangha-card-top .lbl{ font-size:9.5px; letter-spacing:.3em; color:rgba(233,213,177,.4); }
+  .sangha-card-top .arrow{ font-size:12px; color:rgba(233,213,177,.4); }
+  .sangha-card p{ margin:12px 0 0; font-size:12.5px; line-height:1.9; color:rgba(233,213,177,.7); }
+  .save-note{ margin:22px 0 0; text-align:center; font-size:10px; line-height:1.8; letter-spacing:.1em; color:rgba(233,213,177,.3); }
+
+  /* --- sangha --- */
+  .sangha-head{ display:flex; align-items:center; gap:14px; padding-top:60px; }
+  .back-btn{ font-size:22px; color:rgba(233,213,177,.55); cursor:pointer; line-height:1; width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:none; border:none; }
+  .sangha-title{ flex:1; text-align:center; font-size:11px; letter-spacing:.42em; color:var(--gold-dim); margin-right:44px; }
+  .sangha-hero{ margin-top:34px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .sangha-num{ font-size:44px; font-weight:600; line-height:1; color:var(--gold-bright); text-shadow:0 0 26px rgba(216,171,82,.3); font-variant-numeric:tabular-nums; }
+  .live-row{ display:flex; align-items:center; gap:7px; margin-top:2px; }
+  .live-dot{ width:6px; height:6px; border-radius:50%; background:#e6883c; box-shadow:0 0 8px 2px rgba(230,136,60,.5); animation:omEmber 2.2s ease-in-out infinite; }
+  .share-card{ margin-top:30px; padding:18px 20px; border-radius:10px; border:1px solid rgba(216,171,82,.2); background:linear-gradient(180deg,rgba(216,171,82,.07),transparent); }
+  .share-card-top{ display:flex; align-items:baseline; justify-content:space-between; }
+  .progress-track{ margin-top:12px; height:4px; border-radius:4px; background:rgba(216,171,82,.15); overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:4px; background:linear-gradient(90deg,#c69a4c,#f2d38a); transition:width .5s ease; }
+  .rank-note{ margin-top:10px; font-size:10px; line-height:1.7; color:rgba(233,213,177,.35); }
+  .live-hdr{ margin-top:30px; display:flex; align-items:baseline; justify-content:space-between; }
+  .ticker{ margin-top:12px; display:flex; flex-direction:column; }
+  .ticker-row{ display:flex; align-items:center; gap:12px; padding:13px 2px; border-bottom:1px solid rgba(216,171,82,.12); }
+  .avatar{ width:26px; height:26px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; color:#3a2211; background:linear-gradient(180deg,#c08d52,#8a5c2e); }
+  .ticker-row .who{ flex:1; display:flex; flex-direction:column; gap:3px; }
+  .ticker-row .who .n{ font-size:13px; color:var(--ink); }
+  .ticker-row .who .p{ font-size:10px; color:rgba(233,213,177,.38); letter-spacing:.08em; }
+  .ticker-row .m{ font-size:13px; color:var(--gold-bright); font-variant-numeric:tabular-nums; }
+  .tonight-card{ margin-top:26px; padding:16px 20px; border-radius:10px; border:1px dashed rgba(216,171,82,.28); }
+  .tonight-card .lbl{ font-size:9.5px; letter-spacing:.28em; color:rgba(233,213,177,.4); }
+  .tonight-card p{ margin:10px 0 0; font-size:12px; line-height:1.8; color:rgba(233,213,177,.6); }
+
+  /* --- bottom nav --- */
+  #nav{ position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; padding:12px 18px calc(env(safe-area-inset-bottom,0px) + 18px); display:grid; grid-template-columns:repeat(4,1fr); gap:4px; background:linear-gradient(180deg,rgba(26,7,8,0),rgba(20,5,6,.94) 42%); border-top:1px solid rgba(216,171,82,.18); backdrop-filter:blur(8px); z-index:20; }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:48px; padding:8px 0; cursor:pointer; background:none; border:none; color:rgba(233,213,177,.34); }
+  .nav-btn.active{ color:var(--gold-bright); }
+  .nav-btn .zh{ font-size:15px; letter-spacing:.1em; }
+  .nav-btn .en{ font-size:7.5px; letter-spacing:.2em; opacity:.75; }
 
   @media (prefers-reduced-motion: reduce){
-    .float-text, .ripple { animation: none !important; opacity:0; }
-    .fish-zone svg { transition: none; }
+    .floater, .ripple, .seal, .sheet, .editor-sheet, .live-dot, .plaque-hang, .wish-hang{ animation:none !important; }
   }
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="title">功 德 木 鱼</div>
-  <div class="subtitle">ELECTRONIC WOODEN FISH</div>
-
-  <div class="counter-wrap">
-    <div class="merit-label">总功德 · TOTAL MERIT</div>
-    <div class="merit-number" id="meritNumber">0</div>
-    <div class="today" id="todayLine">今日 0 次</div>
-  </div>
-
-  <div class="fish-zone" id="fishZone">
-    <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="75%">
-          <stop offset="0%" stop-color="#8a4a26"/>
-          <stop offset="60%" stop-color="#6b3a22"/>
-          <stop offset="100%" stop-color="#47240f"/>
-        </radialGradient>
-        <linearGradient id="rimGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#c9a24b"/>
-          <stop offset="100%" stop-color="#8a6a2e"/>
-        </linearGradient>
-      </defs>
-      <ellipse cx="110" cy="120" rx="92" ry="68" fill="url(#bodyGrad)" stroke="url(#rimGrad)" stroke-width="3"/>
-      <path d="M110 52 C130 60 150 78 150 120 C150 162 130 180 110 188"
-            fill="none" stroke="#c9a24b" stroke-opacity="0.55" stroke-width="2"/>
-      <path d="M60 90 Q80 85 100 92" fill="none" stroke="#c9a24b" stroke-opacity="0.4" stroke-width="2"/>
-      <path d="M55 130 Q78 138 100 132" fill="none" stroke="#c9a24b" stroke-opacity="0.4" stroke-width="2"/>
-      <circle cx="70" cy="105" r="7" fill="#241206"/>
-      <circle cx="72" cy="103" r="2" fill="#e8c76f"/>
-      <path d="M18 120 C30 100 45 96 60 108 C48 118 48 128 60 138 C45 148 30 142 18 120 Z"
-            fill="#c9a24b" fill-opacity="0.85"/>
-    </svg>
-  </div>
-
-  <div class="hint">TAP THE FISH · 点击木鱼</div>
-  <button class="reset" id="resetBtn">重置 RESET</button>
-  <button class="share-btn" id="shareBtn">分享 SHARE</button>
-  <button class="reminder-btn" id="reminderBtn">⏰ 提醒 REMINDER</button>
-  <div class="reminder-panel" id="reminderPanel" hidden>
-    <label><input type="checkbox" id="reminderToggle"> 每日提醒 Daily reminder</label>
-    <input type="time" id="reminderTime" value="08:00">
-    <div class="reminder-status" id="reminderStatus"></div>
-  </div>
+<div id="stage">
+  <div id="app"></div>
+  <nav id="nav"></nav>
 </div>
+<div id="modalRoot"></div>
 
 <script>
 (function(){
-  const fishZone = document.getElementById('fishZone');
-  const meritNumber = document.getElementById('meritNumber');
-  const todayLine = document.getElementById('todayLine');
-  const stage = document.querySelector('.stage');
-  const resetBtn = document.getElementById('resetBtn');
+  'use strict';
 
-  const todayKey = new Date().toISOString().slice(0,10);
-  let state = { total: 0, day: todayKey, todayCount: 0 };
+  var KEY = 'woodenfish.v1';
+  var OLD_STATE_KEY = 'mokugyo-state';
+  var OLD_REMINDER_KEY = 'mokugyo-reminder';
 
-  const merits = ['功德+1','善哉','阿弥陀佛','福报+1','功德无量','消业障'];
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function fmt(n){ return (n||0).toLocaleString('en-US'); }
+  function todayStr(d){ d = d || new Date(); return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+  function dateFromStr(s){ return new Date(s + 'T00:00:00'); }
+  function addDays(s, n){ var d = dateFromStr(s); d.setDate(d.getDate()+n); return todayStr(d); }
+
+  var NAMES = [
+    ['慧','慧明','杭州'], ['林','林安','台北'], ['一','一尘','成都'],
+    ['周','周小满','上海'], ['净','净远','京都'], ['A','Ana','Lisbon'],
+    ['陈','陈树','广州'], ['妙','妙音','苏州'], ['J','Jonas','Berlin'],
+    ['王','王一舟','北京']
+  ];
+
+  var BURN_SECS = 1800;
+
+  var state = {
+    tab: 'altar',
+    day: todayStr(),
+    today: 0, total: 0,
+    merits: { morning: 0, night: 0 },
+    history: {},
+    wishes: [
+      { text:'身体康健', meta:'母亲', lit:true },
+      { text:'事事顺遂', meta:'99 功德', lit:false },
+      { text:'考试上榜', meta:'弟弟', lit:true },
+      { text:'心安无忧', meta:'自己', lit:false },
+      { text:'家宅平安', meta:'198 功德', lit:true },
+      { text:'故人安息', meta:'外公', lit:false }
+    ],
+    minutes: 8*60,
+    reminderOn: true, reminderLastNotified: '',
+    sound: true, haptic: true,
+    burnEnd: null, burnStartMerit: 0, burnDone: false, sessionMerit: 0, confirmSnuff: false,
+    sealed: false, scrollOpen: false,
+    floaters: [], ripples: [], seq: 0,
+    editing: null,
+    sanghaMerit: 3912460, sanghaPeople: 4281, tickerTick: 0
+  };
+
+  var hydrated = false;
+
+  function session(){ return new Date().getHours() < 15 ? 'morning' : 'night'; }
 
   function load(){
     try{
-      const raw = localStorage.getItem('mokugyo-state');
+      var raw = localStorage.getItem(KEY);
       if(raw){
-        const parsed = JSON.parse(raw);
-        if(parsed.day === todayKey){
-          state = parsed;
-        } else {
-          state = { total: parsed.total || 0, day: todayKey, todayCount: 0 };
+        var d = JSON.parse(raw);
+        Object.assign(state, {
+          day: d.day || todayStr(),
+          today: d.today || 0,
+          total: d.total || 0,
+          merits: d.merits || { morning:0, night:0 },
+          history: d.history || {},
+          wishes: (Array.isArray(d.wishes) && d.wishes.length) ? d.wishes : state.wishes,
+          minutes: (typeof d.minutes === 'number') ? d.minutes : state.minutes,
+          reminderOn: (typeof d.reminderOn === 'boolean') ? d.reminderOn : true,
+          reminderLastNotified: d.reminderLastNotified || '',
+          sound: (typeof d.sound === 'boolean') ? d.sound : true,
+          haptic: (typeof d.haptic === 'boolean') ? d.haptic : true,
+          burnEnd: (d.burnEnd && d.burnEnd > Date.now()) ? d.burnEnd : null,
+          burnStartMerit: d.burnStartMerit || 0,
+          burnDone: !!(d.burnEnd && d.burnEnd <= Date.now() && d.day === todayStr()),
+          sessionMerit: (d.burnEnd && d.burnEnd <= Date.now() && d.day === todayStr())
+            ? Math.max(0, (d.today || 0) - (d.burnStartMerit || 0)) : 0
+        });
+      } else {
+        migrateOld();
+      }
+    }catch(e){ /* first run or blocked storage */ }
+
+    rollDayIfNeeded();
+    hydrated = true;
+    if(state.burnEnd) runBurn();
+  }
+
+  function migrateOld(){
+    try{
+      var rawState = localStorage.getItem(OLD_STATE_KEY);
+      if(rawState){
+        var od = JSON.parse(rawState);
+        state.total = od.total || 0;
+        if(od.day === todayStr()){
+          state.today = od.todayCount || 0;
+          state.merits[session()] = state.today;
         }
       }
-    }catch(e){ /* no saved state yet */ }
-    render();
+      var rawRem = localStorage.getItem(OLD_REMINDER_KEY);
+      if(rawRem){
+        var rd = JSON.parse(rawRem);
+        if(typeof rd.enabled === 'boolean') state.reminderOn = rd.enabled;
+        if(rd.time){
+          var parts = rd.time.split(':').map(Number);
+          state.minutes = (parts[0]||0)*60 + (parts[1]||0);
+        }
+        if(rd.lastNotified) state.reminderLastNotified = rd.lastNotified;
+      }
+    }catch(e){ /* nothing to migrate */ }
+  }
+
+  function rollDayIfNeeded(){
+    var t = todayStr();
+    if(state.day !== t){
+      if(state.today > 0) state.history[state.day] = state.today;
+      state.day = t;
+      state.today = 0;
+      state.merits = { morning:0, night:0 };
+      state.burnEnd = null; state.burnDone = false; state.sessionMerit = 0;
+    }
   }
 
   function save(){
+    if(!hydrated) return;
     try{
-      localStorage.setItem('mokugyo-state', JSON.stringify(state));
-    }catch(e){ /* best effort */ }
+      localStorage.setItem(KEY, JSON.stringify({
+        day: state.day, today: state.today, total: state.total,
+        merits: state.merits, history: state.history, wishes: state.wishes,
+        minutes: state.minutes, reminderOn: state.reminderOn, reminderLastNotified: state.reminderLastNotified,
+        sound: state.sound, haptic: state.haptic,
+        burnEnd: state.burnEnd, burnStartMerit: state.burnStartMerit
+      }));
+    }catch(e){ /* storage unavailable */ }
   }
 
-  function render(){
-    meritNumber.textContent = state.total.toLocaleString();
-    todayLine.textContent = '今日 ' + state.todayCount + ' 次';
+  function streak(){
+    var cursor = dateFromStr(state.day);
+    var histToday = state.history[state.day] || state.today;
+    if(!(histToday > 0)) cursor.setDate(cursor.getDate()-1);
+    var count = 0;
+    while(true){
+      var key = todayStr(cursor);
+      var v = (key === state.day) ? (state.history[state.day] || state.today) : state.history[key];
+      if(!(v > 0)) break;
+      count++;
+      cursor.setDate(cursor.getDate()-1);
+    }
+    return count;
   }
 
-  let audioCtx;
+  function weekBars(){
+    var d = dateFromStr(state.day);
+    var dow = (d.getDay() + 6) % 7; // Mon=0
+    var monday = addDays(state.day, -dow);
+    var days = [];
+    for(var i=0;i<7;i++){
+      var key = addDays(monday, i);
+      var v = (key === state.day) ? (state.merits.morning + state.merits.night) : (state.history[key] || 0);
+      days.push({ key: key, val: v, isToday: key === state.day });
+    }
+    var max = Math.max.apply(null, days.map(function(x){ return x.val; }).concat([1]));
+    days.forEach(function(x){ x.pct = Math.max(6, Math.round((x.val / max) * 100)); });
+    return days;
+  }
+
+  /* ---------- fish tap ---------- */
+
+  var audioCtx;
   function knock(){
+    if(!state.sound) return;
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const now = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      var now = audioCtx.currentTime;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(220, now);
       osc.frequency.exponentialRampToValueAtTime(90, now + 0.12);
@@ -331,129 +401,108 @@
       gain.gain.exponentialRampToValueAtTime(0.5, now + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
       osc.connect(gain).connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.24);
+      osc.start(now); osc.stop(now + 0.24);
     }catch(e){ /* audio not available */ }
   }
 
-  function spawnFloat(){
-    const el = document.createElement('div');
-    el.className = 'float-text';
-    el.textContent = merits[Math.floor(Math.random()*merits.length)];
-    el.style.left = (48 + Math.random()*4) + '%';
-    stage.appendChild(el);
-    setTimeout(()=>el.remove(), 950);
-  }
-
-  function spawnRipple(){
-    const el = document.createElement('div');
-    el.className = 'ripple';
-    fishZone.appendChild(el);
-    setTimeout(()=>el.remove(), 700);
-  }
-
-  function tap(){
-    state.total += 1;
-    state.todayCount += 1;
-    render();
-    save();
+  function tapFish(){
+    var id = ++state.seq;
+    state.today += 1; state.total += 1;
+    var s = session();
+    state.merits[s] = (state.merits[s] || 0) + 1;
+    state.floaters.push({ id: id, left: (34 + Math.random()*120).toFixed(0) + 'px' });
+    if(state.floaters.length > 6) state.floaters.shift();
+    state.ripples.push({ id: id });
+    if(state.ripples.length > 4) state.ripples.shift();
     knock();
-    spawnFloat();
-    spawnRipple();
-    fishZone.classList.add('hit');
-    setTimeout(()=>fishZone.classList.remove('hit'), 90);
-  }
-
-  fishZone.addEventListener('click', tap);
-  fishZone.addEventListener('touchstart', (e)=>{ e.preventDefault(); tap(); }, {passive:false});
-
-  resetBtn.addEventListener('click', ()=>{
-    state = { total: 0, day: todayKey, todayCount: 0 };
-    render();
+    if(state.haptic && navigator.vibrate) navigator.vibrate(10);
     save();
-  });
+    renderAltarLive();
+    setTimeout(function(){
+      state.floaters = state.floaters.filter(function(f){ return f.id !== id; });
+      state.ripples = state.ripples.filter(function(r){ return r.id !== id; });
+      renderAltarLive();
+    }, 1200);
+  }
 
-  const shareBtn = document.getElementById('shareBtn');
-  shareBtn.addEventListener('click', async ()=>{
-    const shareData = {
-      title: '功德木鱼 Merit Fish',
-      text: '我已经敲了 ' + state.total + ' 次木鱼，一起来累积功德吧 🐟',
-      url: location.href
-    };
-    try{
-      if(navigator.share){
-        await navigator.share(shareData);
-      } else if(navigator.clipboard){
-        await navigator.clipboard.writeText(shareData.url);
-        const el = document.createElement('div');
-        el.className = 'float-text';
-        el.textContent = '链接已复制 Link copied';
-        el.style.left = '50%';
-        stage.appendChild(el);
-        setTimeout(()=>el.remove(), 950);
+  /* ---------- incense ---------- */
+
+  var burnTimer = null, snuffTimer = null;
+
+  function runBurn(){
+    clearInterval(burnTimer);
+    burnTimer = setInterval(function(){
+      if(!state.burnEnd) return;
+      if(state.burnEnd > Date.now()){ updateIncenseDom(); return; }
+      clearInterval(burnTimer);
+      state.burnEnd = null; state.burnDone = true;
+      state.sessionMerit = state.today - state.burnStartMerit;
+      save();
+      renderAltarLive();
+    }, 500);
+  }
+
+  function toggleBurn(){
+    if(state.burnEnd){
+      if(!state.confirmSnuff){
+        state.confirmSnuff = true;
+        clearTimeout(snuffTimer);
+        snuffTimer = setTimeout(function(){ state.confirmSnuff = false; renderAltarLive(); }, 3000);
+        renderAltarLive();
+        return;
       }
-    }catch(e){ /* user cancelled share, or clipboard unavailable */ }
-  });
-
-  load();
-
-  // Register the service worker so the app can be installed and opened offline once added to the home screen.
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('mokugyo-sw.js').catch(()=>{ /* offline install still works without it */ });
-  }
-
-  const reminderBtn = document.getElementById('reminderBtn');
-  const reminderPanel = document.getElementById('reminderPanel');
-  const reminderToggle = document.getElementById('reminderToggle');
-  const reminderTime = document.getElementById('reminderTime');
-  const reminderStatus = document.getElementById('reminderStatus');
-
-  let reminderState = { enabled: false, time: '08:00', lastNotified: '' };
-
-  function loadReminder(){
-    try{
-      const raw = localStorage.getItem('mokugyo-reminder');
-      if(raw) reminderState = Object.assign(reminderState, JSON.parse(raw));
-    }catch(e){ /* no saved reminder state yet */ }
-    reminderToggle.checked = reminderState.enabled;
-    reminderTime.value = reminderState.time;
-    renderReminderStatus();
-  }
-
-  function saveReminder(){
-    try{
-      localStorage.setItem('mokugyo-reminder', JSON.stringify(reminderState));
-    }catch(e){ /* best effort */ }
-  }
-
-  function todayStr(){
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-
-  function renderReminderStatus(){
-    if(!('Notification' in window)){
-      reminderStatus.textContent = '此浏览器不支持通知 Not supported';
+      clearTimeout(snuffTimer); clearInterval(burnTimer);
+      state.burnEnd = null; state.burnDone = false; state.confirmSnuff = false;
+      save(); renderAltarLive();
       return;
     }
-    if(!reminderState.enabled){
-      reminderStatus.textContent = '';
-      return;
+    state.burnEnd = Date.now() + BURN_SECS*1000;
+    state.burnStartMerit = state.today;
+    state.burnDone = false;
+    save(); runBurn(); renderAltarLive();
+  }
+
+  function dismissBurn(){
+    state.burnDone = false; state.burnEnd = null; state.burnStartMerit = 0;
+    save(); renderAltarLive();
+  }
+
+  function burnFrac(){
+    if(!state.burnEnd) return 0;
+    var left = Math.max(0, state.burnEnd - Date.now());
+    return left / (BURN_SECS*1000);
+  }
+
+  function updateIncenseDom(){
+    var frac = burnFrac();
+    var left = Math.max(0, Math.round((state.burnEnd - Date.now())/1000));
+    var stick = document.getElementById('incenseStick');
+    var ember = document.getElementById('incenseEmber');
+    var smokes = document.querySelectorAll('.incense-smoke');
+    var label = document.getElementById('incenseLabel');
+    if(stick) stick.style.height = (12 + 56*frac) + 'px';
+    var emberBottom = (28 + 12 + 56*frac) + 'px';
+    var smokeBottom = (34 + 12 + 56*frac) + 'px';
+    if(ember) ember.style.bottom = emberBottom;
+    smokes.forEach(function(s){ s.style.bottom = smokeBottom; });
+    if(label && !state.confirmSnuff){
+      label.textContent = Math.floor(left/60) + ':' + pad2(left%60);
+      label.style.color = 'var(--gold-bright)';
     }
-    if(Notification.permission === 'denied'){
-      reminderStatus.textContent = '通知权限被拒绝 Permission denied';
-      return;
-    }
-    if(Notification.permission !== 'granted'){
-      reminderStatus.textContent = '需要通知权限 Needs permission';
-      return;
-    }
-    reminderStatus.textContent = '每天 ' + reminderState.time + ' 提醒你敲木鱼 Reminds you daily at ' + reminderState.time;
+  }
+
+  /* ---------- reminder / notifications ---------- */
+
+  function timeText(){ return pad2(Math.floor(state.minutes/60)%24) + ':' + pad2(state.minutes%60); }
+
+  function updateReminderStatusDom(){
+    var els = document.querySelectorAll('[data-reminder-state]');
+    els.forEach(function(el){ el.textContent = state.reminderOn ? '已开启' : '已关闭'; });
   }
 
   async function fireReminderNotification(){
-    const title = '功德木鱼 · 敲木鱼时间到了';
-    const opts = {
+    var title = '木魚堂 · 敲木鱼时间到了';
+    var options = {
       body: '今天还没敲木鱼，来累积一点功德吧 🐟',
       icon: 'mokugyo-icon-192.png',
       badge: 'mokugyo-icon-192.png',
@@ -461,94 +510,461 @@
     };
     try{
       if('serviceWorker' in navigator){
-        const reg = await navigator.serviceWorker.ready;
-        await reg.showNotification(title, opts);
-      } else {
-        new Notification(title, opts);
+        var reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(title, options);
+      } else if('Notification' in window){
+        new Notification(title, options);
       }
-    }catch(e){
-      try{ new Notification(title, opts); }catch(e2){ /* notifications unavailable */ }
-    }
-    reminderState.lastNotified = todayStr();
-    saveReminder();
+    }catch(e){ /* notification not available */ }
   }
 
   function checkReminder(){
-    if(!reminderState.enabled) return;
+    if(!state.reminderOn) return;
     if(!('Notification' in window) || Notification.permission !== 'granted') return;
-    if(reminderState.lastNotified === todayStr()) return;
-    const now = new Date();
-    const [h,m] = (reminderState.time || '08:00').split(':').map(Number);
-    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-    if(now >= target){
+    var now = new Date();
+    var h = Math.floor(state.minutes/60), m = state.minutes%60;
+    var t = todayStr();
+    if(state.reminderLastNotified === t) return;
+    if(now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)){
       fireReminderNotification();
+      state.reminderLastNotified = t;
+      save();
     }
   }
 
   async function registerPeriodicSync(){
     try{
       if(!('serviceWorker' in navigator)) return;
-      const reg = await navigator.serviceWorker.ready;
-      if(!reg.periodicSync) return;
-      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      var reg = await navigator.serviceWorker.ready;
+      if(!('periodicSync' in reg)) return;
+      var status = await navigator.permissions.query({ name:'periodic-background-sync' });
       if(status.state === 'granted'){
         await reg.periodicSync.register('mokugyo-daily-reminder', { minInterval: 20*60*60*1000 });
       }
-    }catch(e){ /* periodic background sync not supported */ }
+    }catch(e){ /* unavailable, in-app check still covers it */ }
   }
 
-  async function unregisterPeriodicSync(){
-    try{
-      if(!('serviceWorker' in navigator)) return;
-      const reg = await navigator.serviceWorker.ready;
-      if(!reg.periodicSync) return;
-      await reg.periodicSync.unregister('mokugyo-daily-reminder');
-    }catch(e){ /* best effort */ }
-  }
-
-  reminderBtn.addEventListener('click', ()=>{
-    reminderPanel.hidden = !reminderPanel.hidden;
-    reminderBtn.classList.toggle('active', !reminderPanel.hidden);
-  });
-
-  reminderToggle.addEventListener('change', async ()=>{
-    if(reminderToggle.checked){
-      if(!('Notification' in window)){
-        reminderToggle.checked = false;
-        renderReminderStatus();
-        return;
+  async function toggleReminder(){
+    if(!state.reminderOn){
+      if('Notification' in window && Notification.permission !== 'granted'){
+        var perm = await Notification.requestPermission();
+        if(perm !== 'granted'){ save(); render(); return; }
       }
-      let permission = Notification.permission;
-      if(permission === 'default'){
-        permission = await Notification.requestPermission();
-      }
-      if(permission === 'granted'){
-        reminderState.enabled = true;
-        saveReminder();
-        registerPeriodicSync();
-      } else {
-        reminderToggle.checked = false;
-        reminderState.enabled = false;
-        saveReminder();
-      }
+      state.reminderOn = true;
+      registerPeriodicSync();
     } else {
-      reminderState.enabled = false;
-      saveReminder();
-      unregisterPeriodicSync();
+      state.reminderOn = false;
     }
-    renderReminderStatus();
+    save(); render();
+  }
+
+  function setReminderTime(hhmm){
+    var parts = hhmm.split(':').map(Number);
+    state.minutes = (parts[0]||0)*60 + (parts[1]||0);
+    save(); render();
+  }
+
+  /* ---------- wish CRUD ---------- */
+
+  function openWishEditor(i){
+    state.editing = (i === undefined) ? 'new' : i;
+    renderModal();
+  }
+  function closeEditor(){ state.editing = null; renderModal(); }
+  function saveWish(){
+    var textEl = document.getElementById('wishTextInput');
+    var metaEl = document.getElementById('wishMetaInput');
+    var litEl = document.getElementById('wishLitCheck');
+    var w = {
+      text: (textEl.value || '心想事成').slice(0,6),
+      meta: metaEl.value || '自己',
+      lit: litEl.getAttribute('data-lit') === '1'
+    };
+    if(state.editing === 'new') state.wishes.push(w);
+    else state.wishes[state.editing] = w;
+    state.editing = null;
+    save(); renderModal(); render();
+  }
+  function deleteWish(){
+    if(typeof state.editing !== 'number') return;
+    state.wishes.splice(state.editing, 1);
+    state.editing = null;
+    save(); renderModal(); render();
+  }
+  function toggleDraftLamp(){
+    var litEl = document.getElementById('wishLitCheck');
+    var on = litEl.getAttribute('data-lit') === '1';
+    litEl.setAttribute('data-lit', on ? '0' : '1');
+    litEl.textContent = on ? '' : '✓';
+  }
+
+  /* ---------- share / reset ---------- */
+
+  function stampShare(){
+    state.sealed = true; renderAltarLive();
+    var shareData = {
+      title: '木魚堂 Wooden Fish',
+      text: '我已经敲了 ' + fmt(state.today) + ' 次木鱼，累计 ' + fmt(state.total) + ' 功德，一起来修行吧 🐟',
+      url: location.href
+    };
+    (async function(){
+      try{
+        if(navigator.share) await navigator.share(shareData);
+        else if(navigator.clipboard) await navigator.clipboard.writeText(shareData.url);
+      }catch(e){ /* cancelled or unavailable */ }
+    })();
+    setTimeout(function(){ state.sealed = false; renderAltarLive(); }, 2600);
+  }
+
+  function resetToday(){
+    state.today = 0; state.merits = { morning:0, night:0 };
+    save(); renderAltarLive();
+  }
+
+  function toggleScroll(){ state.scrollOpen = !state.scrollOpen; renderAltarLive(); }
+
+  /* ---------- sangha ticker ---------- */
+
+  function sanghaTickerData(){
+    var tick = state.tickerTick;
+    var out = [];
+    for(var i=0;i<6;i++){
+      var n = NAMES[(tick + i*3) % NAMES.length];
+      var secs = i === 0 ? 0 : i*11 + ((tick*7 + i*13) % 9);
+      out.push({
+        initial: n[0], name: n[1], place: n[2],
+        ago: secs < 5 ? '刚刚' : secs + ' 秒前',
+        merit: 12 + ((tick*17 + i*29) % 180)
+      });
+    }
+    return out;
+  }
+
+  var sanghaTimer = setInterval(function(){
+    state.sanghaMerit += Math.floor(3 + Math.random()*24);
+    state.sanghaPeople = Math.max(3900, state.sanghaPeople + Math.floor(Math.random()*7) - 3);
+    state.tickerTick += 1;
+    if(state.tab === 'sangha') render();
+  }, 1800);
+
+  /* ---------- render: altar ---------- */
+
+  function renderAltar(){
+    var frac = burnFrac();
+    var left = state.burnEnd ? Math.max(0, Math.round((state.burnEnd - Date.now())/1000)) : 0;
+    var stickHeight = state.burnEnd ? (12 + 56*frac) : (state.burnDone ? 12 : 68);
+    var burnLabel = state.confirmSnuff ? '再点熄香'
+      : state.burnEnd ? (Math.floor(left/60) + ':' + pad2(left%60))
+      : '点香 30 分';
+    var burnColor = state.confirmSnuff ? '#e6883c' : state.burnEnd ? 'var(--gold-bright)' : 'rgba(233,213,177,.38)';
+    var dayTotal = state.merits.morning + state.merits.night;
+
+    var floatersHtml = state.floaters.map(function(f){
+      return '<div class="floater" style="left:' + f.left + '">功德 +1</div>';
+    }).join('');
+    var ripplesHtml = state.ripples.map(function(){ return '<div class="ripple"></div>'; }).join('');
+
+    var smokeHtml = '';
+    if(state.burnEnd){
+      var sb = (34 + 12 + 56*frac) + 'px';
+      smokeHtml =
+        '<div class="incense-smoke" style="bottom:' + sb + ';left:30px;animation-delay:0s"></div>' +
+        '<div class="incense-smoke" style="bottom:' + sb + ';left:29px;width:11px;height:11px;animation-delay:1.7s"></div>' +
+        '<div class="incense-smoke" style="bottom:' + sb + ';left:30px;width:8px;height:8px;animation-delay:3.4s"></div>';
+    }
+    var emberHtml = state.burnEnd
+      ? '<div class="incense-ember" id="incenseEmber" style="bottom:' + (28 + 12 + 56*frac) + 'px"></div>' + smokeHtml
+      : '';
+
+    var burnToastHtml = state.burnDone ? (
+      '<div class="burn-toast">' +
+        '<div><div class="t1">一炷香已尽</div><div class="t2">此座 ' + fmt(state.sessionMerit) + ' 功德 · 30 分钟</div></div>' +
+        '<button data-action="dismissBurn">收</button>' +
+      '</div>'
+    ) : '';
+
+    var sheetHtml = state.scrollOpen ? (
+      '<div class="sheet">' +
+        '<div class="sheet-head"><div class="sheet-title">每日提醒</div><button class="sheet-close" data-action="toggleScroll">收起</button></div>' +
+        '<div class="reminder-time-wrap">' +
+          '<div class="reminder-time">' + timeText() + '</div>' +
+          '<input type="time" class="reminder-time-input" id="reminderTimeInput" value="' + timeText() + '">' +
+        '</div>' +
+        '<button class="check-row" data-action="toggleReminder"><span class="check-box">' + (state.reminderOn?'✓':'') + '</span><span class="check-label">每日敲一次木鱼</span></button>' +
+        '<div class="sheet-rule"></div>' +
+        '<div class="sheet-note">提醒将以静默通知送达 · ' + (state.reminderOn?'已开启':'已关闭') + '</div>' +
+      '</div>'
+    ) : '';
+
+    return (
+      '<div class="hdr-rule"><div class="line"></div><div class="label">木 魚 堂</div><div class="line r"></div></div>' +
+      '<div class="today-wrap">' +
+        '<div class="today-label">今日功德 · TODAY\'S MERIT</div>' +
+        '<div class="today-num">' + fmt(dayTotal) + '</div>' +
+        '<div class="total-line">累计 ' + fmt(state.total) + '</div>' +
+      '</div>' +
+      '<div class="fish-area">' +
+        floatersHtml +
+        '<button class="fish-btn" data-action="tapFish">' +
+          ripplesHtml +
+          '<div class="fish-glow"></div>' +
+          '<div class="fish-body"><div class="fish-mouth"></div><div class="fish-shine"></div></div>' +
+        '</button>' +
+        '<div class="tap-hint">TAP THE FISH · 敲 木 魚</div>' +
+        '<button class="incense" data-action="toggleBurn">' +
+          '<div class="incense-stick" id="incenseStick" style="height:' + stickHeight + 'px"></div>' +
+          emberHtml +
+          '<div class="incense-holder"></div>' +
+          '<div class="incense-label" id="incenseLabel" style="color:' + burnColor + '">' + burnLabel + '</div>' +
+        '</button>' +
+        burnToastHtml +
+      '</div>' +
+      '<div class="beam-wrap">' +
+        '<div class="beam"></div>' +
+        '<div class="plaques">' +
+          '<div class="plaque-hang p1"><div class="cord"></div>' +
+            '<button class="plaque" data-action="resetToday"><div class="zh">重置</div><div class="en">RESET</div></button>' +
+          '</div>' +
+          '<div class="plaque-hang p2"><div class="cord"></div>' +
+            '<button class="plaque" data-action="stampShare"><div class="zh">分享</div><div class="en">SHARE</div>' +
+              (state.sealed ? '<div class="seal"><span>分享</span></div>' : '') +
+            '</button>' +
+          '</div>' +
+          '<div class="plaque-hang p3"><div class="cord"></div>' +
+            '<button class="plaque" data-action="toggleScroll"><div class="zh">提醒</div><div class="en">REMIND</div></button>' +
+          '</div>' +
+        '</div>' +
+        sheetHtml +
+      '</div>'
+    );
+  }
+
+  function renderAltarLive(){
+    if(state.tab !== 'altar') return;
+    document.getElementById('app').innerHTML = renderAltar();
+    bindReminderInput();
+  }
+
+  /* ---------- render: merit ---------- */
+
+  function renderMerit(){
+    var bars = weekBars();
+    var wd = ['一','二','三','四','五','六','日'];
+    var barsHtml = bars.map(function(b){
+      return '<div class="bar' + (b.isToday?' today':'') + '" style="height:' + b.pct + '%"></div>';
+    }).join('');
+    var labelsHtml = wd.map(function(w){ return '<div>' + w + '</div>'; }).join('');
+    return (
+      '<div class="page-title">功 德 簿</div>' +
+      '<div class="scroll-pad">' +
+        '<div class="merit-card">' +
+          '<div class="merit-card-top">' +
+            '<div><div class="stat-label">连续</div><div class="stat-num">' + streak() + '<span class="unit">天</span></div></div>' +
+            '<div style="text-align:right"><div class="stat-label">累计</div><div class="stat-num">' + fmt(state.total) + '</div></div>' +
+          '</div>' +
+          '<div class="bars">' + barsHtml + '</div>' +
+          '<div class="bar-labels">' + labelsHtml + '</div>' +
+        '</div>' +
+        '<div class="sec-label">今日 · SESSIONS</div>' +
+        '<div class="sessions">' +
+          '<div class="session-row"><div><div class="name">晨课</div><div class="meta">06:00 · ' + fmt(state.merits.morning) + '</div></div><div class="val">+ ' + fmt(state.merits.morning) + '</div></div>' +
+          '<div class="session-row"><div><div class="name">晚课</div><div class="meta">21:00 · ' + fmt(state.merits.night) + '</div></div><div class="val">+ ' + fmt(state.merits.night) + '</div></div>' +
+          '<div class="session-row"><div><div class="name">今日合计</div><div class="meta">晨课 · 晚课</div></div><div class="val">+ ' + fmt(state.merits.morning + state.merits.night) + '</div></div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  /* ---------- render: wish ---------- */
+
+  function renderWish(){
+    var itemsHtml = state.wishes.map(function(w, i){
+      var lampColor = w.lit ? '#e6883c' : 'rgba(58,34,17,.3)';
+      return (
+        '<div class="wish-hang"><div class="wish-cord"></div>' +
+          '<button class="wish-plaque" data-action="editWish" data-idx="' + i + '">' +
+            '<div class="zh">' + w.text + '</div>' +
+            '<div class="meta">' + w.meta + '</div>' +
+            '<div class="lamp-dot" style="background:' + lampColor + '"></div>' +
+          '</button>' +
+        '</div>'
+      );
+    }).join('');
+    return (
+      '<div class="page-title">祈 願 牆</div>' +
+      '<div class="page-sub">敲够九九功德，可为一愿点灯</div>' +
+      '<div class="scroll-pad" style="padding-top:24px">' +
+        '<div class="beam"></div>' +
+        '<div style="height:14px"></div>' +
+        '<div class="wish-grid">' + itemsHtml + '</div>' +
+        '<button class="add-wish" data-action="addWish">挂 上 新 願</button>' +
+        '<div class="wish-hint">轻点木牌可编辑或取下</div>' +
+      '</div>'
+    );
+  }
+
+  function renderModal(){
+    var root = document.getElementById('modalRoot');
+    if(state.editing === null){ root.innerHTML = ''; return; }
+    var isNew = state.editing === 'new';
+    var w = isNew ? { text:'', meta:'' } : state.wishes[state.editing];
+    root.innerHTML =
+      '<div class="editor-overlay" data-action="overlayClose">' +
+        '<div class="editor-sheet">' +
+          '<div class="sheet-head"><div class="sheet-title">' + (isNew ? '写下心願' : '修改心願') + '</div><button class="sheet-close" data-action="closeEditor">取消</button></div>' +
+          '<div class="field-label">願 文</div>' +
+          '<input id="wishTextInput" class="field-input" maxlength="6" placeholder="四字为佳" value="' + (w.text||'').replace(/"/g,'&quot;') + '">' +
+          '<div class="field-label">為 誰</div>' +
+          '<input id="wishMetaInput" class="field-input small" maxlength="10" placeholder="自己 / 母亲 …" value="' + (w.meta||'').replace(/"/g,'&quot;') + '">' +
+          '<button class="check-row" data-action="toggleDraftLamp"><span class="check-box" id="wishLitCheck" data-lit="' + (w.lit ? '1':'0') + '">' + (w.lit ? '✓' : '') + '</span><span class="check-label">为此願点灯（99 功德）</span></button>' +
+          '<div class="editor-actions">' +
+            '<button class="btn-save" data-action="saveWish">挂 上</button>' +
+            (isNew ? '' : '<button class="btn-del" data-action="deleteWish">取 下</button>') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ---------- render: me / settings ---------- */
+
+  function renderMe(){
+    return (
+      '<div class="page-title">清 修</div>' +
+      '<div class="scroll-pad">' +
+        '<div class="rows">' +
+          '<button class="row" data-action="toggleSound"><div><div class="name">木鱼声</div><div class="sub">SOUND</div></div><div class="val">' + (state.sound?'开':'静音') + '</div></button>' +
+          '<button class="row" data-action="toggleHaptic"><div><div class="name">震动</div><div class="sub">HAPTICS</div></div><div class="val">' + (state.haptic?'开':'关') + '</div></button>' +
+          '<button class="row" data-action="toggleReminder"><div><div class="name">每日提醒</div><div class="sub">DAILY REMINDER</div></div><div class="val">' + (state.reminderOn?'已开启':'已关闭') + '</div></button>' +
+          '<div class="row" style="cursor:default"><div><div class="name">提醒时刻</div><div class="sub">TIME</div></div><div class="val">' + timeText() + '</div></div>' +
+        '</div>' +
+        '<button class="sangha-card" data-action="goSangha">' +
+          '<div class="sangha-card-top"><div class="lbl">共修</div><div class="arrow">›</div></div>' +
+          '<p>今日有 ' + fmt(state.sanghaPeople) + ' 人同敲木鱼，共 ' + fmt(state.sanghaMerit) + ' 功德。</p>' +
+        '</button>' +
+        '<div class="save-note">功德与心願自动存于本机</div>' +
+      '</div>'
+    );
+  }
+
+  /* ---------- render: sangha ---------- */
+
+  function renderSangha(){
+    var dayTotal = state.merits.morning + state.merits.night;
+    var pct = dayTotal / state.sanghaMerit;
+    var sharePct = (pct*100).toFixed(3) + '%';
+    var shareBar = Math.min(100, Math.max(2, pct*900)).toFixed(1) + '%';
+    var rank = fmt(Math.max(1, Math.round(state.sanghaPeople * (1 - Math.min(0.98, dayTotal/2600)))));
+    var ticker = sanghaTickerData();
+    var tickerHtml = ticker.map(function(t){
+      return (
+        '<div class="ticker-row">' +
+          '<div class="avatar">' + t.initial + '</div>' +
+          '<div class="who"><span class="n">' + t.name + '</span><span class="p">' + t.place + ' · ' + t.ago + '</span></div>' +
+          '<span class="m">+' + t.merit + '</span>' +
+        '</div>'
+      );
+    }).join('');
+    return (
+      '<div class="sangha-head"><button class="back-btn" data-action="goMe">‹</button><div class="sangha-title">共 修</div></div>' +
+      '<div class="scroll-pad">' +
+        '<div class="sangha-hero">' +
+          '<div class="stat-label">今日共修功德</div>' +
+          '<div class="sangha-num">' + fmt(state.sanghaMerit) + '</div>' +
+          '<div class="live-row"><div class="live-dot"></div><div style="font-size:11px;letter-spacing:.14em;color:rgba(233,213,177,.5)">' + fmt(state.sanghaPeople) + ' 人正在同敲</div></div>' +
+        '</div>' +
+        '<div class="share-card">' +
+          '<div class="share-card-top"><div class="stat-label">你的一份</div><div style="font-size:13px;color:var(--gold-bright);font-variant-numeric:tabular-nums">' + fmt(dayTotal) + ' · ' + sharePct + '</div></div>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + shareBar + '"></div></div>' +
+          '<div class="rank-note">全部共修者中排第 ' + rank + '</div>' +
+        '</div>' +
+        '<div class="live-hdr"><div style="font-size:9.5px;letter-spacing:.3em;color:rgba(233,213,177,.4)">此刻 · LIVE</div><div style="font-size:9.5px;letter-spacing:.14em;color:rgba(233,213,177,.28)">自动刷新</div></div>' +
+        '<div class="ticker">' + tickerHtml + '</div>' +
+        '<div class="tonight-card"><div class="lbl">今夜共修</div><p>21:00 · 千人同敲一百零八声。届时提醒你。</p></div>' +
+      '</div>'
+    );
+  }
+
+  /* ---------- nav ---------- */
+
+  function renderNav(){
+    var items = [
+      { key:'altar', zh:'木魚', en:'ALTAR' },
+      { key:'merit', zh:'功德', en:'MERIT' },
+      { key:'wish', zh:'祈願', en:'WISHES' },
+      { key:'me', zh:'清修', en:'SELF' }
+    ];
+    var activeKey = (state.tab === 'sangha') ? 'me' : state.tab;
+    document.getElementById('nav').innerHTML = items.map(function(it){
+      return '<button class="nav-btn' + (it.key === activeKey ? ' active' : '') + '" data-action="goTab" data-tab="' + it.key + '"><span class="zh">' + it.zh + '</span><span class="en">' + it.en + '</span></button>';
+    }).join('');
+  }
+
+  /* ---------- dispatch ---------- */
+
+  function bindReminderInput(){
+    var input = document.getElementById('reminderTimeInput');
+    if(input){ input.addEventListener('change', function(){ setReminderTime(input.value); }); }
+  }
+
+  function render(){
+    var app = document.getElementById('app');
+    if(state.tab === 'altar') app.innerHTML = renderAltar();
+    else if(state.tab === 'merit') app.innerHTML = renderMerit();
+    else if(state.tab === 'wish') app.innerHTML = renderWish();
+    else if(state.tab === 'me') app.innerHTML = renderMe();
+    else if(state.tab === 'sangha') app.innerHTML = renderSangha();
+    renderNav();
+    bindReminderInput();
+    renderModal();
+  }
+
+  function goTab(tab){ state.tab = tab; state.scrollOpen = false; render(); }
+
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('[data-action]');
+    if(!el) return;
+    var action = el.getAttribute('data-action');
+    switch(action){
+      case 'tapFish': tapFish(); break;
+      case 'toggleBurn': toggleBurn(); break;
+      case 'dismissBurn': dismissBurn(); break;
+      case 'resetToday': resetToday(); break;
+      case 'stampShare': stampShare(); break;
+      case 'toggleScroll': toggleScroll(); break;
+      case 'toggleReminder': toggleReminder(); break;
+      case 'goTab': goTab(el.getAttribute('data-tab')); break;
+      case 'editWish': openWishEditor(parseInt(el.getAttribute('data-idx'),10)); break;
+      case 'addWish': openWishEditor(); break;
+      case 'closeEditor': closeEditor(); break;
+      case 'saveWish': saveWish(); break;
+      case 'deleteWish': deleteWish(); break;
+      case 'toggleDraftLamp': toggleDraftLamp(); break;
+      case 'toggleSound': state.sound = !state.sound; save(); render(); break;
+      case 'toggleHaptic': state.haptic = !state.haptic; save(); render(); break;
+      case 'goSangha': goTab('sangha'); break;
+      case 'goMe': goTab('me'); break;
+      case 'overlayClose': if(e.target === el) closeEditor(); break;
+    }
   });
 
-  reminderTime.addEventListener('change', ()=>{
-    reminderState.time = reminderTime.value;
-    reminderState.lastNotified = '';
-    saveReminder();
-    renderReminderStatus();
-  });
+  /* ---------- init ---------- */
 
-  loadReminder();
+  load();
+  render();
+  setInterval(checkReminder, 60*1000);
   checkReminder();
-  setInterval(checkReminder, 60000);
+  if(state.reminderOn && 'Notification' in window && Notification.permission === 'granted'){
+    registerPeriodicSync();
+  }
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('mokugyo-sw.js').catch(function(){ /* offline install still works without it */ });
+  }
+
+  setInterval(function(){
+    var t = todayStr();
+    if(state.day !== t){ rollDayIfNeeded(); save(); render(); }
+  }, 30000);
 })();
 </script>
 </body>
