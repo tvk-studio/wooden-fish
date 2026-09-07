@@ -62,12 +62,15 @@
   @keyframes omSeal{0%{opacity:0;transform:scale(2.1) rotate(-14deg)}55%{opacity:1;transform:scale(.92) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
   @keyframes omUnfurl{0%{opacity:0;transform:scaleY(.04);transform-origin:top}60%{opacity:1}100%{opacity:1;transform:scaleY(1);transform-origin:top}}
   @keyframes omEmber{0%,100%{opacity:.35}50%{opacity:1}}
+  @keyframes omLampGlow{0%{opacity:0;transform:scale(.7)}22%{opacity:1;transform:scale(1.04)}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.02)}}
+  @keyframes omLampFlare{0%{opacity:0}20%{opacity:.85}100%{opacity:0}}
 
   /* --- header --- */
   .hdr-rule{ display:flex; align-items:center; justify-content:center; gap:12px; color:var(--gold-dim); padding-top:28px; }
   .hdr-rule .line{ height:1px; width:44px; background:linear-gradient(90deg,transparent,rgba(198,154,76,.6)); }
   .hdr-rule .line.r{ background:linear-gradient(270deg,transparent,rgba(198,154,76,.6)); }
   .hdr-rule .label{ font-size:11px; letter-spacing:.42em; }
+  .hall-input{ min-width:70px; max-width:230px; padding:2px 0; text-align:center; font-family:'Noto Serif SC',serif; font-size:11px; letter-spacing:.42em; color:var(--gold-dim); background:transparent; border:none; outline:none; cursor:text; }
   .page-title{ font-size:11px; letter-spacing:.42em; color:var(--gold-dim); text-align:center; padding-top:28px; }
   .page-sub{ margin:16px 22px 0; font-size:11.5px; line-height:1.8; color:rgba(233,213,177,.45); text-align:center; }
 
@@ -87,6 +90,21 @@
   .fish-mouth{ position:absolute; left:22px; right:22px; top:58%; height:9px; border-radius:9px; background:linear-gradient(180deg,#1b0d06,#2e1a0d); box-shadow:inset 0 2px 3px rgba(0,0,0,.8); }
   .fish-shine{ position:absolute; left:30px; top:22px; width:36px; height:14px; border-radius:50%; background:rgba(255,235,200,.13); filter:blur(3px); }
   .tap-hint{ margin-top:14px; font-size:9.5px; letter-spacing:.34em; color:rgba(233,213,177,.34); }
+
+  .active-card{ margin-top:16px; width:236px; padding:12px 16px; box-sizing:border-box; border-radius:8px; border:1px solid rgba(216,171,82,.22); background:linear-gradient(180deg,rgba(216,171,82,.07),transparent); cursor:pointer; text-align:left; }
+  .active-card-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .active-card-top .lbl{ font-size:9px; letter-spacing:.28em; color:rgba(233,213,177,.42); }
+  .active-card-top .frac{ font-size:10px; letter-spacing:.1em; color:rgba(233,213,177,.4); font-variant-numeric:tabular-nums; }
+  .active-text{ margin-top:7px; font-size:14px; letter-spacing:.18em; }
+  .active-track{ margin-top:9px; height:3px; border-radius:3px; background:rgba(216,171,82,.15); overflow:hidden; }
+  .active-fill{ height:100%; border-radius:3px; background:linear-gradient(90deg,#c69a4c,#f2d38a); transition:width .3s ease; }
+
+  .celebrate-overlay{ position:absolute; inset:-40px -26px; z-index:14; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .celebrate-flare{ position:absolute; inset:0; background:radial-gradient(50% 40% at 50% 46%,rgba(230,136,60,.5),transparent 72%); animation:omLampFlare 2.4s ease-out forwards; }
+  .celebrate-card{ position:relative; padding:20px 26px; border-radius:10px; border:1px solid rgba(242,211,138,.45); background:rgba(26,7,8,.86); backdrop-filter:blur(6px); text-align:center; animation:omLampGlow 2.4s ease-out forwards; }
+  .celebrate-dot{ width:10px; height:10px; margin:0 auto; border-radius:50%; background:#e6883c; box-shadow:0 0 18px 6px rgba(230,136,60,.65); }
+  .celebrate-text{ margin-top:12px; font-size:16px; letter-spacing:.22em; color:var(--gold-bright); }
+  .celebrate-sub{ margin-top:7px; font-size:9.5px; letter-spacing:.24em; color:rgba(233,213,177,.5); }
 
   .incense{ position:absolute; right:-4px; bottom:6px; width:64px; height:124px; z-index:8; cursor:pointer; background:none; border:none; padding:0; }
   .incense-stick{ position:absolute; bottom:32px; left:30px; width:3px; background:linear-gradient(180deg,#6d4a2a,#8a6a44); transition:height 1s linear; }
@@ -117,14 +135,22 @@
   .sheet-head{ display:flex; align-items:baseline; justify-content:space-between; }
   .sheet-title{ font-size:15px; color:#4a3418; letter-spacing:.14em; }
   .sheet-close{ font-size:12px; color:rgba(74,52,24,.6); cursor:pointer; letter-spacing:.1em; padding:12px 14px; margin:-12px -14px; background:none; border:none; }
-  .reminder-time-wrap{ margin-top:14px; position:relative; }
-  .reminder-time{ font-size:44px; font-weight:600; color:#3a2a18; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-  .reminder-time-input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
   .check-row{ margin-top:12px; display:flex; align-items:center; gap:10px; min-height:44px; cursor:pointer; background:none; border:none; padding:0; text-align:left; }
   .check-box{ width:18px; height:18px; border:1px solid rgba(74,52,24,.5); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#8e1f1a; flex:none; }
   .check-label{ font-size:12px; color:rgba(74,52,24,.8); letter-spacing:.06em; }
+  .check-col{ display:flex; flex-direction:column; gap:3px; }
+  .check-sub{ font-size:10px; color:rgba(74,52,24,.5); letter-spacing:.04em; }
   .sheet-rule{ margin-top:14px; height:1px; background:rgba(74,52,24,.16); }
   .sheet-note{ margin-top:10px; font-size:10px; line-height:1.6; color:rgba(74,52,24,.55); }
+
+  .reminder-list{ margin-top:12px; display:flex; flex-direction:column; }
+  .reminder-row{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid rgba(74,52,24,.14); }
+  .reminder-toggle{ display:flex; align-items:center; gap:10px; flex:1; min-height:44px; min-width:0; cursor:pointer; background:none; border:none; padding:0; text-align:left; }
+  .reminder-time-big{ font-size:28px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+  .reminder-label-input{ margin-top:3px; width:88px; padding:2px 0; font-family:'Noto Serif SC',serif; font-size:10px; letter-spacing:.16em; color:rgba(74,52,24,.75); background:transparent; border:none; border-bottom:1px solid rgba(74,52,24,.28); outline:none; display:block; }
+  .reminder-adj{ flex:none; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(74,52,24,.28); border-radius:3px; font-size:14px; color:rgba(74,52,24,.7); cursor:pointer; background:none; }
+  .reminder-remove{ flex:none; width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:11px; letter-spacing:.06em; color:rgba(74,52,24,.45); cursor:pointer; background:none; border:none; }
+  .add-reminder-btn{ margin-top:12px; width:100%; padding:11px 0; text-align:center; border:1px dashed rgba(74,52,24,.35); border-radius:4px; font-size:11px; letter-spacing:.2em; color:rgba(74,52,24,.7); cursor:pointer; background:none; }
 
   /* --- merit --- */
   .scroll-pad{ padding:0 26px 24px; overflow:auto; }
@@ -152,6 +178,10 @@
   .wish-plaque .zh{ font-size:13px; line-height:1.2; color:#3a2211; letter-spacing:.14em; writing-mode:vertical-rl; white-space:nowrap; margin:0 auto; height:88px; display:flex; align-items:center; justify-content:center; }
   .wish-plaque .meta{ margin-top:7px; font-size:10px; letter-spacing:.1em; color:#f3e2c4; text-shadow:0 1px 2px rgba(0,0,0,.5); }
   .lamp-dot{ position:absolute; top:8px; right:8px; width:6px; height:6px; border-radius:50%; }
+  .wish-progress-track{ margin-top:6px; height:3px; border-radius:3px; background:rgba(58,34,17,.25); overflow:hidden; }
+  .wish-progress-fill{ height:100%; border-radius:3px; }
+  .wish-progress-text{ margin-top:5px; font-size:8.5px; letter-spacing:.1em; color:rgba(58,34,17,.6); font-variant-numeric:tabular-nums; }
+  .wish-active-mark{ position:absolute; top:8px; left:8px; font-size:8.5px; letter-spacing:.1em; color:rgba(58,34,17,.7); }
   .add-wish{ margin-top:30px; padding:14px 0; text-align:center; border:1px dashed rgba(216,171,82,.4); border-radius:6px; font-size:12px; letter-spacing:.24em; color:var(--gold); cursor:pointer; background:none; width:100%; }
   .wish-hint{ margin:14px 0 0; text-align:center; font-size:10px; letter-spacing:.12em; color:rgba(233,213,177,.3); }
 
@@ -176,6 +206,13 @@
   .sangha-card-top .lbl{ font-size:9.5px; letter-spacing:.3em; color:rgba(233,213,177,.4); }
   .sangha-card-top .arrow{ font-size:12px; color:rgba(233,213,177,.4); }
   .sangha-card p{ margin:12px 0 0; font-size:12.5px; line-height:1.9; color:rgba(233,213,177,.7); }
+  .reset-card{ margin-top:34px; padding:18px 20px; border-radius:10px; border:1px solid rgba(216,171,82,.28); }
+  .reset-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+  .reset-info{ display:flex; flex-direction:column; gap:5px; }
+  .reset-info .name{ font-size:14px; color:var(--ink); }
+  .reset-info .sub{ font-size:10px; letter-spacing:.1em; color:rgba(233,213,177,.38); }
+  .reset-btn{ flex:none; padding:13px 18px; border:1px solid rgba(216,171,82,.28); border-radius:4px; font-size:11px; letter-spacing:.16em; color:var(--gold); cursor:pointer; background:none; }
+  .reset-hint{ margin:12px 0 0; font-size:10px; line-height:1.7; color:rgba(233,213,177,.35); }
   .save-note{ margin:22px 0 0; text-align:center; font-size:10px; line-height:1.8; letter-spacing:.1em; color:rgba(233,213,177,.3); }
 
   /* --- sangha --- */
@@ -235,6 +272,25 @@
   function todayStr(d){ d = d || new Date(); return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
   function dateFromStr(s){ return new Date(s + 'T00:00:00'); }
   function addDays(s, n){ var d = dateFromStr(s); d.setDate(d.getDate()+n); return todayStr(d); }
+  function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+  function hhmm(mins){ return pad2(Math.floor(mins/60)%24) + ':' + pad2(((mins%60)+60)%60); }
+  function slotLabel(mins){
+    var h = Math.floor(mins/60) % 24;
+    if(h < 11) return '晨课';
+    if(h < 16) return '午课';
+    return '晚课';
+  }
+  function nextUnlit(wishes, from){
+    for(var k=1;k<=wishes.length;k++){
+      var j = (from + k) % wishes.length;
+      if(!wishes[j].lit) return j;
+    }
+    return null;
+  }
+  function hallWidth(name){
+    var len = (name || '木 魚 堂').length;
+    return Math.max(70, Math.min(230, len*13 + 16)) + 'px';
+  }
 
   var NAMES = [
     ['慧','慧明','杭州'], ['林','林安','台北'], ['一','一尘','成都'],
@@ -244,6 +300,7 @@
   ];
 
   var BURN_SECS = 1800;
+  var GOAL = 99;
 
   var state = {
     tab: 'altar',
@@ -251,21 +308,23 @@
     today: 0, total: 0,
     merits: { morning: 0, night: 0 },
     history: {},
+    hallName: '木 魚 堂',
     wishes: [
-      { text:'身体康健', meta:'母亲', lit:true },
-      { text:'事事顺遂', meta:'99 功德', lit:false },
-      { text:'考试上榜', meta:'弟弟', lit:true },
-      { text:'心安无忧', meta:'自己', lit:false },
-      { text:'家宅平安', meta:'198 功德', lit:true },
-      { text:'故人安息', meta:'外公', lit:false }
+      { text:'身体康健', meta:'母亲', lit:false, p:41 },
+      { text:'事事顺遂', meta:'自己', lit:true, p:99 },
+      { text:'考试上榜', meta:'弟弟', lit:false, p:12 },
+      { text:'心安无忧', meta:'自己', lit:false, p:0 },
+      { text:'家宅平安', meta:'全家', lit:true, p:99 },
+      { text:'故人安息', meta:'外公', lit:false, p:68 }
     ],
-    minutes: 8*60,
-    reminderOn: true, reminderLastNotified: '',
+    active: 0,
+    reminders: [ { m: 6*60, on: true, label: '晨课' }, { m: 21*60, on: true, label: '晚课' } ],
+    reminderOn: true, remindersNotifiedDay: '', remindersNotifiedIdx: [],
     sound: true, haptic: true,
     burnEnd: null, burnStartMerit: 0, burnDone: false, sessionMerit: 0, confirmSnuff: false,
-    sealed: false, scrollOpen: false,
+    sealed: false, scrollOpen: false, confirmReset: false,
     floaters: [], ripples: [], seq: 0,
-    editing: null,
+    editing: null, celebrate: null,
     sanghaMerit: 3912460, sanghaPeople: 4281, tickerTick: 0
   };
 
@@ -284,10 +343,18 @@
           total: d.total || 0,
           merits: d.merits || { morning:0, night:0 },
           history: d.history || {},
-          wishes: (Array.isArray(d.wishes) && d.wishes.length) ? d.wishes : state.wishes,
-          minutes: (typeof d.minutes === 'number') ? d.minutes : state.minutes,
+          hallName: d.hallName || state.hallName,
+          wishes: ((Array.isArray(d.wishes) && d.wishes.length) ? d.wishes : state.wishes).map(function(w){
+            return { text: w.text, meta: w.meta, lit: !!w.lit, p: w.lit ? GOAL : (w.p != null ? w.p : 0) };
+          }),
+          active: (typeof d.active === 'number' || d.active === null) ? d.active : state.active,
+          reminders: (Array.isArray(d.reminders) && d.reminders.length) ? d.reminders
+            : (typeof d.minutes === 'number')
+              ? [{ m: d.minutes, on: (typeof d.reminderOn === 'boolean' ? d.reminderOn : true), label: slotLabel(d.minutes) }]
+              : state.reminders,
           reminderOn: (typeof d.reminderOn === 'boolean') ? d.reminderOn : true,
-          reminderLastNotified: d.reminderLastNotified || '',
+          remindersNotifiedDay: d.remindersNotifiedDay || '',
+          remindersNotifiedIdx: Array.isArray(d.remindersNotifiedIdx) ? d.remindersNotifiedIdx : [],
           sound: (typeof d.sound === 'boolean') ? d.sound : true,
           haptic: (typeof d.haptic === 'boolean') ? d.haptic : true,
           burnEnd: (d.burnEnd && d.burnEnd > Date.now()) ? d.burnEnd : null,
@@ -300,6 +367,13 @@
         migrateOld();
       }
     }catch(e){ /* first run or blocked storage */ }
+
+    var a = state.active;
+    if(a === null || !state.wishes[a] || state.wishes[a].lit){
+      var firstUnlit = -1;
+      for(var k=0;k<state.wishes.length;k++){ if(!state.wishes[k].lit){ firstUnlit = k; break; } }
+      state.active = firstUnlit === -1 ? null : firstUnlit;
+    }
 
     rollDayIfNeeded();
     hydrated = true;
@@ -320,12 +394,15 @@
       var rawRem = localStorage.getItem(OLD_REMINDER_KEY);
       if(rawRem){
         var rd = JSON.parse(rawRem);
-        if(typeof rd.enabled === 'boolean') state.reminderOn = rd.enabled;
+        var enabled = (typeof rd.enabled === 'boolean') ? rd.enabled : true;
+        var mins = state.reminders[0] ? state.reminders[0].m : 6*60;
         if(rd.time){
           var parts = rd.time.split(':').map(Number);
-          state.minutes = (parts[0]||0)*60 + (parts[1]||0);
+          mins = (parts[0]||0)*60 + (parts[1]||0);
         }
-        if(rd.lastNotified) state.reminderLastNotified = rd.lastNotified;
+        state.reminderOn = enabled;
+        state.reminders = [{ m: mins, on: true, label: slotLabel(mins) }];
+        if(rd.lastNotified){ state.remindersNotifiedDay = rd.lastNotified; state.remindersNotifiedIdx = [0]; }
       }
     }catch(e){ /* nothing to migrate */ }
   }
@@ -347,7 +424,9 @@
       localStorage.setItem(KEY, JSON.stringify({
         day: state.day, today: state.today, total: state.total,
         merits: state.merits, history: state.history, wishes: state.wishes,
-        minutes: state.minutes, reminderOn: state.reminderOn, reminderLastNotified: state.reminderLastNotified,
+        hallName: state.hallName, active: state.active,
+        reminders: state.reminders, reminderOn: state.reminderOn,
+        remindersNotifiedDay: state.remindersNotifiedDay, remindersNotifiedIdx: state.remindersNotifiedIdx,
         sound: state.sound, haptic: state.haptic,
         burnEnd: state.burnEnd, burnStartMerit: state.burnStartMerit
       }));
@@ -405,8 +484,25 @@
     }catch(e){ /* audio not available */ }
   }
 
+  var celebTimer = null;
+
   function tapFish(){
     var id = ++state.seq;
+    var i = state.active;
+    var w = (i !== null && state.wishes[i]) ? state.wishes[i] : null;
+    if(w){
+      var p = Math.min(GOAL, (w.p || 0) + 1);
+      var justLit = (p >= GOAL && !w.lit);
+      state.wishes = state.wishes.map(function(x, j){
+        return j === i ? { text:x.text, meta:x.meta, p:p, lit: x.lit || p >= GOAL } : x;
+      });
+      if(justLit){
+        state.celebrate = w.text;
+        clearTimeout(celebTimer);
+        celebTimer = setTimeout(function(){ state.celebrate = null; renderAltarLive(); }, 2400);
+        state.active = nextUnlit(state.wishes, i);
+      }
+    }
     state.today += 1; state.total += 1;
     var s = session();
     state.merits[s] = (state.merits[s] || 0) + 1;
@@ -493,17 +589,21 @@
 
   /* ---------- reminder / notifications ---------- */
 
-  function timeText(){ return pad2(Math.floor(state.minutes/60)%24) + ':' + pad2(state.minutes%60); }
-
-  function updateReminderStatusDom(){
-    var els = document.querySelectorAll('[data-reminder-state]');
-    els.forEach(function(el){ el.textContent = state.reminderOn ? '已开启' : '已关闭'; });
+  function reminderTimesText(){
+    var enabled = state.reminderOn ? state.reminders.filter(function(r){ return r.on; }) : [];
+    if(!enabled.length) return '无';
+    return enabled.slice().sort(function(a,b){ return a.m - b.m; }).map(function(r){ return hhmm(r.m); }).join(' · ');
   }
 
-  async function fireReminderNotification(){
+  function reminderStateText(){
+    var n = state.reminderOn ? state.reminders.filter(function(r){ return r.on; }).length : 0;
+    return n ? ('每日 ' + n + ' 次') : '已关闭';
+  }
+
+  async function fireReminderNotification(label){
     var title = '木魚堂 · 敲木鱼时间到了';
     var options = {
-      body: '今天还没敲木鱼，来累积一点功德吧 🐟',
+      body: (label ? label + ' · ' : '') + '今天还没敲木鱼，来累积一点功德吧 🐟',
       icon: 'mokugyo-icon-192.png',
       badge: 'mokugyo-icon-192.png',
       tag: 'mokugyo-daily-reminder'
@@ -522,14 +622,20 @@
     if(!state.reminderOn) return;
     if(!('Notification' in window) || Notification.permission !== 'granted') return;
     var now = new Date();
-    var h = Math.floor(state.minutes/60), m = state.minutes%60;
     var t = todayStr();
-    if(state.reminderLastNotified === t) return;
-    if(now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)){
-      fireReminderNotification();
-      state.reminderLastNotified = t;
-      save();
-    }
+    if(state.remindersNotifiedDay !== t){ state.remindersNotifiedDay = t; state.remindersNotifiedIdx = []; }
+    var fired = false;
+    state.reminders.forEach(function(r, i){
+      if(!r.on) return;
+      if(state.remindersNotifiedIdx.indexOf(i) !== -1) return;
+      var h = Math.floor(r.m/60)%24, m = r.m%60;
+      if(now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)){
+        fireReminderNotification(r.label);
+        state.remindersNotifiedIdx.push(i);
+        fired = true;
+      }
+    });
+    if(fired) save();
   }
 
   async function registerPeriodicSync(){
@@ -558,12 +664,6 @@
     save(); render();
   }
 
-  function setReminderTime(hhmm){
-    var parts = hhmm.split(':').map(Number);
-    state.minutes = (parts[0]||0)*60 + (parts[1]||0);
-    save(); render();
-  }
-
   /* ---------- wish CRUD ---------- */
 
   function openWishEditor(i){
@@ -574,28 +674,37 @@
   function saveWish(){
     var textEl = document.getElementById('wishTextInput');
     var metaEl = document.getElementById('wishMetaInput');
-    var litEl = document.getElementById('wishLitCheck');
+    var activeEl = document.getElementById('wishActiveCheck');
+    var isNew = state.editing === 'new';
+    var prev = isNew ? null : state.wishes[state.editing];
     var w = {
       text: (textEl.value || '心想事成').slice(0,6),
       meta: metaEl.value || '自己',
-      lit: litEl.getAttribute('data-lit') === '1'
+      p: prev ? (prev.p || 0) : 0,
+      lit: prev ? prev.lit : false
     };
-    if(state.editing === 'new') state.wishes.push(w);
-    else state.wishes[state.editing] = w;
+    var wishes = isNew ? state.wishes.concat([w]) : state.wishes.map(function(x,j){ return j === state.editing ? w : x; });
+    var idx = isNew ? wishes.length - 1 : state.editing;
+    var draftActive = activeEl.getAttribute('data-active') === '1';
+    var active = draftActive ? idx : (state.active === idx ? null : state.active);
+    state.wishes = wishes;
+    state.active = active;
     state.editing = null;
     save(); renderModal(); render();
   }
   function deleteWish(){
     if(typeof state.editing !== 'number') return;
-    state.wishes.splice(state.editing, 1);
+    var i = state.editing;
+    state.active = (state.active === i) ? null : (state.active > i ? state.active - 1 : state.active);
+    state.wishes = state.wishes.filter(function(_,j){ return j !== i; });
     state.editing = null;
     save(); renderModal(); render();
   }
-  function toggleDraftLamp(){
-    var litEl = document.getElementById('wishLitCheck');
-    var on = litEl.getAttribute('data-lit') === '1';
-    litEl.setAttribute('data-lit', on ? '0' : '1');
-    litEl.textContent = on ? '' : '✓';
+  function toggleDraftActive(){
+    var el = document.getElementById('wishActiveCheck');
+    var on = el.getAttribute('data-active') === '1';
+    el.setAttribute('data-active', on ? '0' : '1');
+    el.textContent = on ? '' : '✓';
   }
 
   /* ---------- share / reset ---------- */
@@ -619,6 +728,21 @@
   function resetToday(){
     state.today = 0; state.merits = { morning:0, night:0 };
     save(); renderAltarLive();
+  }
+
+  var resetTimer = null;
+
+  function resetTotal(){
+    if(!state.confirmReset){
+      state.confirmReset = true;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function(){ state.confirmReset = false; render(); }, 3000);
+      render();
+      return;
+    }
+    clearTimeout(resetTimer);
+    state.total = 0; state.today = 0; state.merits = { morning:0, night:0 }; state.confirmReset = false;
+    save(); render();
   }
 
   function toggleScroll(){ state.scrollOpen = !state.scrollOpen; renderAltarLive(); }
@@ -683,21 +807,33 @@
       '</div>'
     ) : '';
 
-    var sheetHtml = state.scrollOpen ? (
-      '<div class="sheet">' +
-        '<div class="sheet-head"><div class="sheet-title">每日提醒</div><button class="sheet-close" data-action="toggleScroll">收起</button></div>' +
-        '<div class="reminder-time-wrap">' +
-          '<div class="reminder-time">' + timeText() + '</div>' +
-          '<input type="time" class="reminder-time-input" id="reminderTimeInput" value="' + timeText() + '">' +
+    var sheetHtml = state.scrollOpen ? renderReminderSheet() : '';
+
+    var activeWish = (state.active !== null && state.wishes[state.active]) ? state.wishes[state.active] : null;
+    var activeText = activeWish
+      ? (activeWish.lit ? activeWish.text + ' · 已点灯，另择一願' : activeWish.text)
+      : '未择心願 · 去祈願牆';
+    var activeInk = (activeWish && !activeWish.lit) ? 'var(--gold-bright)' : 'rgba(233,213,177,.45)';
+    var activeProgress = activeWish
+      ? (activeWish.lit ? '已满' : Math.min(GOAL, activeWish.p||0) + ' / ' + GOAL)
+      : '—';
+    var activeBar = activeWish ? Math.round(Math.min(GOAL, activeWish.p||0)/GOAL*100) + '%' : '0%';
+
+    var celebrateHtml = state.celebrate ? (
+      '<div class="celebrate-overlay">' +
+        '<div class="celebrate-flare"></div>' +
+        '<div class="celebrate-card">' +
+          '<div class="celebrate-dot"></div>' +
+          '<div class="celebrate-text">' + state.celebrate + '</div>' +
+          '<div class="celebrate-sub">灯 已 点 亮 · 九 十 九 功 德</div>' +
         '</div>' +
-        '<button class="check-row" data-action="toggleReminder"><span class="check-box">' + (state.reminderOn?'✓':'') + '</span><span class="check-label">每日敲一次木鱼</span></button>' +
-        '<div class="sheet-rule"></div>' +
-        '<div class="sheet-note">提醒将以静默通知送达 · ' + (state.reminderOn?'已开启':'已关闭') + '</div>' +
       '</div>'
     ) : '';
 
     return (
-      '<div class="hdr-rule"><div class="line"></div><div class="label">木 魚 堂</div><div class="line r"></div></div>' +
+      '<div class="hdr-rule"><div class="line"></div>' +
+        '<input id="hallNameInput" class="hall-input" maxlength="14" placeholder="木 魚 堂" value="' + escapeAttr(state.hallName) + '" style="width:' + hallWidth(state.hallName) + '">' +
+      '<div class="line r"></div></div>' +
       '<div class="today-wrap">' +
         '<div class="today-label">今日功德 · TODAY\'S MERIT</div>' +
         '<div class="today-num">' + fmt(dayTotal) + '</div>' +
@@ -711,6 +847,12 @@
           '<div class="fish-body"><div class="fish-mouth"></div><div class="fish-shine"></div></div>' +
         '</button>' +
         '<div class="tap-hint">TAP THE FISH · 敲 木 魚</div>' +
+        '<button class="active-card" data-action="goTab" data-tab="wish">' +
+          '<div class="active-card-top"><span class="lbl">所 向</span><span class="frac">' + activeProgress + '</span></div>' +
+          '<div class="active-text" style="color:' + activeInk + '">' + activeText + '</div>' +
+          '<div class="active-track"><div class="active-fill" style="width:' + activeBar + '"></div></div>' +
+        '</button>' +
+        celebrateHtml +
         '<button class="incense" data-action="toggleBurn">' +
           '<div class="incense-stick" id="incenseStick" style="height:' + stickHeight + 'px"></div>' +
           emberHtml +
@@ -739,10 +881,39 @@
     );
   }
 
+  function renderReminderSheet(){
+    var rowsHtml = state.reminders.map(function(r, i){
+      var on = r.on && state.reminderOn;
+      var mark = on ? '✓' : '';
+      var ink = on ? '#3a2a18' : 'rgba(58,42,24,.35)';
+      return (
+        '<div class="reminder-row">' +
+          '<button class="reminder-toggle" data-action="toggleReminderRow" data-idx="' + i + '">' +
+            '<span class="check-box" style="color:' + ink + '">' + mark + '</span>' +
+            '<span class="reminder-time-big" style="color:' + ink + '">' + hhmm(r.m) + '</span>' +
+          '</button>' +
+          '<input class="reminder-label-input" data-idx="' + i + '" maxlength="8" placeholder="提醒事由" value="' + escapeAttr(r.label||'') + '">' +
+          '<button class="reminder-adj" data-action="shiftReminder" data-idx="' + i + '" data-delta="-15">−</button>' +
+          '<button class="reminder-adj" data-action="shiftReminder" data-idx="' + i + '" data-delta="15">+</button>' +
+          '<button class="reminder-remove" data-action="removeReminder" data-idx="' + i + '">取下</button>' +
+        '</div>'
+      );
+    }).join('');
+    return (
+      '<div class="sheet">' +
+        '<div class="sheet-head"><div class="sheet-title">每日提醒</div><button class="sheet-close" data-action="toggleScroll">收起</button></div>' +
+        '<div class="reminder-list">' + rowsHtml + '</div>' +
+        '<button class="add-reminder-btn" data-action="addReminder">加 一 次 提 醒</button>' +
+        '<div class="sheet-rule"></div>' +
+        '<div class="sheet-note">提醒将以静默通知送达 · ' + reminderStateText() + '</div>' +
+      '</div>'
+    );
+  }
+
   function renderAltarLive(){
     if(state.tab !== 'altar') return;
     document.getElementById('app').innerHTML = renderAltar();
-    bindReminderInput();
+    bindAltarInputs();
   }
 
   /* ---------- render: merit ---------- */
@@ -779,13 +950,22 @@
 
   function renderWish(){
     var itemsHtml = state.wishes.map(function(w, i){
+      var p = Math.min(GOAL, w.p || 0);
+      var pct = Math.round(p/GOAL*100) + '%';
       var lampColor = w.lit ? '#e6883c' : 'rgba(58,34,17,.3)';
+      var lampGlow = w.lit ? '0 0 8px 2px rgba(230,136,60,.5)' : 'none';
+      var barInk = w.lit ? '#e6883c' : 'rgba(58,34,17,.55)';
+      var progressText = w.lit ? '已点灯' : (p + ' / ' + GOAL);
+      var activeMarkHtml = (state.active === i) ? '<div class="wish-active-mark">所向</div>' : '';
       return (
         '<div class="wish-hang"><div class="wish-cord"></div>' +
           '<button class="wish-plaque" data-action="editWish" data-idx="' + i + '">' +
             '<div class="zh">' + w.text + '</div>' +
             '<div class="meta">' + w.meta + '</div>' +
-            '<div class="lamp-dot" style="background:' + lampColor + '"></div>' +
+            '<div class="wish-progress-track"><div class="wish-progress-fill" style="width:' + pct + ';background:' + barInk + '"></div></div>' +
+            '<div class="wish-progress-text">' + progressText + '</div>' +
+            '<div class="lamp-dot" style="background:' + lampColor + ';box-shadow:' + lampGlow + '"></div>' +
+            activeMarkHtml +
           '</button>' +
         '</div>'
       );
@@ -808,15 +988,19 @@
     if(state.editing === null){ root.innerHTML = ''; return; }
     var isNew = state.editing === 'new';
     var w = isNew ? { text:'', meta:'' } : state.wishes[state.editing];
+    var defaultActive = isNew ? (state.active === null) : (state.active === state.editing);
     root.innerHTML =
       '<div class="editor-overlay" data-action="overlayClose">' +
         '<div class="editor-sheet">' +
           '<div class="sheet-head"><div class="sheet-title">' + (isNew ? '写下心願' : '修改心願') + '</div><button class="sheet-close" data-action="closeEditor">取消</button></div>' +
           '<div class="field-label">願 文</div>' +
-          '<input id="wishTextInput" class="field-input" maxlength="6" placeholder="四字为佳" value="' + (w.text||'').replace(/"/g,'&quot;') + '">' +
+          '<input id="wishTextInput" class="field-input" maxlength="6" placeholder="四字为佳" value="' + escapeAttr(w.text) + '">' +
           '<div class="field-label">為 誰</div>' +
-          '<input id="wishMetaInput" class="field-input small" maxlength="10" placeholder="自己 / 母亲 …" value="' + (w.meta||'').replace(/"/g,'&quot;') + '">' +
-          '<button class="check-row" data-action="toggleDraftLamp"><span class="check-box" id="wishLitCheck" data-lit="' + (w.lit ? '1':'0') + '">' + (w.lit ? '✓' : '') + '</span><span class="check-label">为此願点灯（99 功德）</span></button>' +
+          '<input id="wishMetaInput" class="field-input small" maxlength="10" placeholder="自己 / 母亲 …" value="' + escapeAttr(w.meta) + '">' +
+          '<button class="check-row" data-action="toggleDraftActive">' +
+            '<span class="check-box" id="wishActiveCheck" data-active="' + (defaultActive ? '1':'0') + '">' + (defaultActive ? '✓' : '') + '</span>' +
+            '<span class="check-col"><span class="check-label">以此願承功德</span><span class="check-sub">敲木鱼的功德计入此願，满 99 自动点灯</span></span>' +
+          '</button>' +
           '<div class="editor-actions">' +
             '<button class="btn-save" data-action="saveWish">挂 上</button>' +
             (isNew ? '' : '<button class="btn-del" data-action="deleteWish">取 下</button>') +
@@ -828,19 +1012,30 @@
   /* ---------- render: me / settings ---------- */
 
   function renderMe(){
+    var resetInk = state.confirmReset ? '#e6883c' : 'var(--gold)';
+    var resetBorder = state.confirmReset ? 'rgba(230,136,60,.5)' : 'rgba(216,171,82,.28)';
+    var resetLabel = state.confirmReset ? '再点清零' : '清零';
+    var resetNote = state.confirmReset ? '此举将清空累计与今日功德，无法复原。' : '清零后累计与今日功德归零，心願不受影响。';
     return (
       '<div class="page-title">清 修</div>' +
       '<div class="scroll-pad">' +
         '<div class="rows">' +
           '<button class="row" data-action="toggleSound"><div><div class="name">木鱼声</div><div class="sub">SOUND</div></div><div class="val">' + (state.sound?'开':'静音') + '</div></button>' +
           '<button class="row" data-action="toggleHaptic"><div><div class="name">震动</div><div class="sub">HAPTICS</div></div><div class="val">' + (state.haptic?'开':'关') + '</div></button>' +
-          '<button class="row" data-action="toggleReminder"><div><div class="name">每日提醒</div><div class="sub">DAILY REMINDER</div></div><div class="val">' + (state.reminderOn?'已开启':'已关闭') + '</div></button>' +
-          '<div class="row" style="cursor:default"><div><div class="name">提醒时刻</div><div class="sub">TIME</div></div><div class="val">' + timeText() + '</div></div>' +
+          '<button class="row" data-action="toggleReminder"><div><div class="name">每日提醒</div><div class="sub">DAILY REMINDER</div></div><div class="val">' + reminderStateText() + '</div></button>' +
+          '<div class="row" style="cursor:default"><div><div class="name">提醒时刻</div><div class="sub">TIMES</div></div><div class="val" style="text-align:right">' + reminderTimesText() + '</div></div>' +
         '</div>' +
         '<button class="sangha-card" data-action="goSangha">' +
           '<div class="sangha-card-top"><div class="lbl">共修</div><div class="arrow">›</div></div>' +
           '<p>今日有 ' + fmt(state.sanghaPeople) + ' 人同敲木鱼，共 ' + fmt(state.sanghaMerit) + ' 功德。</p>' +
         '</button>' +
+        '<div class="reset-card" style="border-color:' + resetBorder + '">' +
+          '<div class="reset-row">' +
+            '<div class="reset-info"><span class="name">重置累计功德</span><span class="sub">RESET TOTAL · 累计 ' + fmt(state.total) + '</span></div>' +
+            '<button class="reset-btn" data-action="resetTotal" style="border-color:' + resetBorder + ';color:' + resetInk + '">' + resetLabel + '</button>' +
+          '</div>' +
+          '<div class="reset-hint">' + resetNote + '</div>' +
+        '</div>' +
         '<div class="save-note">功德与心願自动存于本机</div>' +
       '</div>'
     );
@@ -901,9 +1096,21 @@
 
   /* ---------- dispatch ---------- */
 
-  function bindReminderInput(){
-    var input = document.getElementById('reminderTimeInput');
-    if(input){ input.addEventListener('change', function(){ setReminderTime(input.value); }); }
+  function bindAltarInputs(){
+    var hn = document.getElementById('hallNameInput');
+    if(hn){
+      hn.addEventListener('input', function(){
+        state.hallName = hn.value;
+        hn.style.width = hallWidth(hn.value);
+        save();
+      });
+    }
+    document.querySelectorAll('.reminder-label-input').forEach(function(inp){
+      inp.addEventListener('input', function(){
+        var idx = parseInt(inp.getAttribute('data-idx'), 10);
+        if(state.reminders[idx]){ state.reminders[idx].label = inp.value; save(); }
+      });
+    });
   }
 
   function render(){
@@ -914,7 +1121,7 @@
     else if(state.tab === 'me') app.innerHTML = renderMe();
     else if(state.tab === 'sangha') app.innerHTML = renderSangha();
     renderNav();
-    bindReminderInput();
+    bindAltarInputs();
     renderModal();
   }
 
@@ -938,9 +1145,37 @@
       case 'closeEditor': closeEditor(); break;
       case 'saveWish': saveWish(); break;
       case 'deleteWish': deleteWish(); break;
-      case 'toggleDraftLamp': toggleDraftLamp(); break;
+      case 'toggleDraftActive': toggleDraftActive(); break;
       case 'toggleSound': state.sound = !state.sound; save(); render(); break;
       case 'toggleHaptic': state.haptic = !state.haptic; save(); render(); break;
+      case 'resetTotal': resetTotal(); break;
+      case 'toggleReminderRow': {
+        var rIdx = parseInt(el.getAttribute('data-idx'), 10);
+        if(state.reminders[rIdx]) state.reminders[rIdx].on = !state.reminders[rIdx].on;
+        save(); renderAltarLive();
+        break;
+      }
+      case 'shiftReminder': {
+        var sIdx = parseInt(el.getAttribute('data-idx'), 10);
+        var delta = parseInt(el.getAttribute('data-delta'), 10);
+        if(state.reminders[sIdx]) state.reminders[sIdx].m = ((state.reminders[sIdx].m + delta) % 1440 + 1440) % 1440;
+        save(); renderAltarLive();
+        break;
+      }
+      case 'removeReminder': {
+        var xIdx = parseInt(el.getAttribute('data-idx'), 10);
+        state.reminders = state.reminders.filter(function(_, j){ return j !== xIdx; });
+        save(); renderAltarLive();
+        break;
+      }
+      case 'addReminder': {
+        var nextM = state.reminders.length
+          ? (Math.max.apply(null, state.reminders.map(function(r){ return r.m; })) + 180) % 1440
+          : 720;
+        state.reminders.push({ m: nextM, on: true, label: slotLabel(nextM) });
+        save(); renderAltarLive();
+        break;
+      }
       case 'goSangha': goTab('sangha'); break;
       case 'goMe': goTab('me'); break;
       case 'overlayClose': if(e.target === el) closeEditor(); break;
