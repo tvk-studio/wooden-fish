@@ -195,6 +195,19 @@
   .btn-save{ flex:1; padding:13px 0; text-align:center; border-radius:4px; background:linear-gradient(180deg,#8e1f1a,#6d1512); color:#f6e2c8; font-size:13px; letter-spacing:.24em; cursor:pointer; border:none; }
   .btn-del{ padding:13px 20px; text-align:center; border-radius:4px; border:1px solid rgba(74,52,24,.35); color:rgba(74,52,24,.75); font-size:13px; letter-spacing:.2em; cursor:pointer; background:none; }
 
+  /* --- install prompt --- */
+  .install-overlay{ position:fixed; inset:0; z-index:50; background:rgba(12,4,5,.72); backdrop-filter:blur(3px); display:flex; align-items:flex-end; justify-content:center; }
+  .install-sheet{ width:100%; max-width:480px; padding:26px 26px 40px; box-sizing:border-box; background:linear-gradient(180deg,#efe4c8,#ddcda8); box-shadow:0 -22px 44px rgba(0,0,0,.55); animation:omUnfurl .34s ease-out forwards; text-align:center; }
+  .install-icon{ width:56px; height:56px; border-radius:14px; box-shadow:0 8px 18px rgba(0,0,0,.3); }
+  .install-title{ margin-top:14px; font-size:16px; color:#4a3418; letter-spacing:.1em; }
+  .install-body{ margin-top:8px; font-size:12px; line-height:1.8; color:rgba(74,52,24,.65); }
+  .install-steps{ margin-top:16px; display:flex; flex-direction:column; gap:10px; text-align:left; }
+  .install-step{ display:flex; align-items:center; gap:10px; font-size:12.5px; color:rgba(74,52,24,.8); }
+  .install-step .num{ flex:none; width:22px; height:22px; border-radius:50%; background:rgba(142,31,26,.12); color:#8e1f1a; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
+  .install-actions{ margin-top:20px; display:flex; gap:10px; }
+  .install-btn-primary{ flex:1; padding:13px 0; text-align:center; border-radius:4px; background:linear-gradient(180deg,#8e1f1a,#6d1512); color:#f6e2c8; font-size:13px; letter-spacing:.24em; cursor:pointer; border:none; }
+  .install-btn-secondary{ flex:1; padding:13px 0; text-align:center; border-radius:4px; border:1px solid rgba(74,52,24,.35); color:rgba(74,52,24,.75); font-size:13px; letter-spacing:.2em; cursor:pointer; background:none; }
+
   /* --- me / settings --- */
   .rows{ margin-top:30px; display:flex; flex-direction:column; gap:1px; }
   .row{ display:flex; align-items:center; justify-content:space-between; padding:17px 2px; border-bottom:1px solid rgba(216,171,82,.14); cursor:pointer; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left; color:inherit; }
@@ -258,6 +271,7 @@
   <nav id="nav"></nav>
 </div>
 <div id="modalRoot"></div>
+<div id="installRoot"></div>
 
 <script>
 (function(){
@@ -325,7 +339,8 @@
     sealed: false, scrollOpen: false, confirmReset: false,
     floaters: [], ripples: [], seq: 0,
     editing: null, celebrate: null,
-    sanghaMerit: 3912460, sanghaPeople: 4281, tickerTick: 0
+    sanghaMerit: 3912460, sanghaPeople: 4281, tickerTick: 0,
+    installOpen: false, installMode: null
   };
 
   var hydrated = false;
@@ -771,6 +786,96 @@
     if(state.tab === 'sangha') render();
   }, 1800);
 
+  /* ---------- install prompt ---------- */
+
+  var INSTALL_DISMISS_KEY = 'woodenfish.installDismissed';
+  var deferredInstallPrompt = null;
+
+  function isStandalone(){
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOS(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+  function installDismissed(){
+    try{ return localStorage.getItem(INSTALL_DISMISS_KEY) === '1'; }catch(e){ return false; }
+  }
+  function markInstallDismissed(){
+    try{ localStorage.setItem(INSTALL_DISMISS_KEY, '1'); }catch(e){ /* storage unavailable */ }
+  }
+
+  function openInstallPrompt(){
+    state.installOpen = true;
+    state.installMode = (deferredInstallPrompt && !isIOS()) ? 'android' : 'ios';
+    renderInstallModal();
+  }
+
+  function closeInstallPrompt(remember){
+    state.installOpen = false;
+    if(remember) markInstallDismissed();
+    renderInstallModal();
+  }
+
+  function doInstall(){
+    if(!deferredInstallPrompt){ closeInstallPrompt(true); return; }
+    var evt = deferredInstallPrompt;
+    deferredInstallPrompt = null;
+    state.installOpen = false;
+    renderInstallModal();
+    evt.prompt();
+    evt.userChoice.then(function(){ markInstallDismissed(); }).catch(function(){ /* dismissed */ });
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if(!isStandalone() && !installDismissed()){
+      state.installOpen = true;
+      state.installMode = 'android';
+      renderInstallModal();
+    }
+  });
+
+  window.addEventListener('appinstalled', function(){
+    deferredInstallPrompt = null;
+    state.installOpen = false;
+    markInstallDismissed();
+    renderInstallModal();
+  });
+
+  function renderInstallModal(){
+    var root = document.getElementById('installRoot');
+    if(!state.installOpen){ root.innerHTML = ''; return; }
+    var isIosMode = state.installMode === 'ios';
+    var stepsHtml = isIosMode ? (
+      '<div class="install-steps">' +
+        '<div class="install-step"><span class="num">1</span>点击底部分享按钮 ⬆️</div>' +
+        '<div class="install-step"><span class="num">2</span>选择「添加到主屏幕」</div>' +
+        '<div class="install-step"><span class="num">3</span>点击「添加」即可</div>' +
+      '</div>'
+    ) : '';
+    var actionsHtml = isIosMode ? (
+      '<div class="install-actions">' +
+        '<button class="install-btn-primary" data-action="closeInstall" data-remember="1">知 道 了</button>' +
+      '</div>'
+    ) : (
+      '<div class="install-actions">' +
+        '<button class="install-btn-secondary" data-action="closeInstall" data-remember="1">以后再说</button>' +
+        '<button class="install-btn-primary" data-action="doInstall">安 装</button>' +
+      '</div>'
+    );
+    root.innerHTML =
+      '<div class="install-overlay" data-action="overlayCloseInstall">' +
+        '<div class="install-sheet">' +
+          '<img class="install-icon" src="mokugyo-icon-192.png" alt="">' +
+          '<div class="install-title">把木魚堂装到主屏幕</div>' +
+          '<div class="install-body">全屏敲木鱼，离线也能用，还能收到每日提醒。</div>' +
+          stepsHtml +
+          actionsHtml +
+        '</div>' +
+      '</div>';
+  }
+
   /* ---------- render: altar ---------- */
 
   function renderAltar(){
@@ -1024,6 +1129,9 @@
           '<button class="row" data-action="toggleHaptic"><div><div class="name">震动</div><div class="sub">HAPTICS</div></div><div class="val">' + (state.haptic?'开':'关') + '</div></button>' +
           '<button class="row" data-action="toggleReminder"><div><div class="name">每日提醒</div><div class="sub">DAILY REMINDER</div></div><div class="val">' + reminderStateText() + '</div></button>' +
           '<div class="row" style="cursor:default"><div><div class="name">提醒时刻</div><div class="sub">TIMES</div></div><div class="val" style="text-align:right">' + reminderTimesText() + '</div></div>' +
+          (isStandalone()
+            ? '<div class="row" style="cursor:default"><div><div class="name">安装状态</div><div class="sub">INSTALL</div></div><div class="val">已安装</div></div>'
+            : '<button class="row" data-action="openInstall"><div><div class="name">安装为 App</div><div class="sub">ADD TO HOME SCREEN</div></div><div class="val">›</div></button>') +
         '</div>' +
         '<button class="sangha-card" data-action="goSangha">' +
           '<div class="sangha-card-top"><div class="lbl">共修</div><div class="arrow">›</div></div>' +
@@ -1179,6 +1287,10 @@
       case 'goSangha': goTab('sangha'); break;
       case 'goMe': goTab('me'); break;
       case 'overlayClose': if(e.target === el) closeEditor(); break;
+      case 'openInstall': openInstallPrompt(); break;
+      case 'doInstall': doInstall(); break;
+      case 'closeInstall': closeInstallPrompt(el.getAttribute('data-remember') === '1'); break;
+      case 'overlayCloseInstall': if(e.target === el) closeInstallPrompt(true); break;
     }
   });
 
@@ -1194,6 +1306,16 @@
 
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('mokugyo-sw.js').catch(function(){ /* offline install still works without it */ });
+  }
+
+  if(isIOS() && !isStandalone() && !installDismissed()){
+    setTimeout(function(){
+      if(!state.installOpen){
+        state.installOpen = true;
+        state.installMode = 'ios';
+        renderInstallModal();
+      }
+    }, 1500);
   }
 
   setInterval(function(){
