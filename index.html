@@ -383,6 +383,20 @@
       }
     }catch(e){ /* first run or blocked storage */ }
 
+    hydrated = true;
+    try{
+      var sharedHall = new URL(location.href).searchParams.get('hall');
+      if(sharedHall && !raw){
+        state.hallName = sharedHall.slice(0, 14);
+        save();
+      }
+      if(sharedHall){
+        var cleanUrl = new URL(location.href);
+        cleanUrl.searchParams.delete('hall');
+        history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+      }
+    }catch(e){ /* URL API unavailable or blocked */ }
+
     var a = state.active;
     if(a === null || !state.wishes[a] || state.wishes[a].lit){
       var firstUnlit = -1;
@@ -391,7 +405,6 @@
     }
 
     rollDayIfNeeded();
-    hydrated = true;
     if(state.burnEnd) runBurn();
   }
 
@@ -727,10 +740,16 @@
   function stampShare(){
     state.sealed = true; renderAltarLive();
     var hallTitle = (state.hallName || '木魚堂').replace(/\s+/g, '');
+    var shareUrl = location.href;
+    try{
+      var u = new URL(location.href);
+      u.searchParams.set('hall', hallTitle);
+      shareUrl = u.toString();
+    }catch(e){ /* URL API unavailable */ }
     var shareData = {
       title: hallTitle,
       text: hallTitle + ' · 我已经敲了 ' + fmt(state.today) + ' 次木鱼，累计 ' + fmt(state.total) + ' 功德，一起来修行吧 🐟',
-      url: location.href
+      url: shareUrl
     };
     (async function(){
       try{
