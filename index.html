@@ -726,9 +726,10 @@
 
   function stampShare(){
     state.sealed = true; renderAltarLive();
+    var hallTitle = (state.hallName || '木魚堂').replace(/\s+/g, '');
     var shareData = {
-      title: '木魚堂 Wooden Fish',
-      text: '我已经敲了 ' + fmt(state.today) + ' 次木鱼，累计 ' + fmt(state.total) + ' 功德，一起来修行吧 🐟',
+      title: hallTitle,
+      text: hallTitle + ' · 我已经敲了 ' + fmt(state.today) + ' 次木鱼，累计 ' + fmt(state.total) + ' 功德，一起来修行吧 🐟',
       url: location.href
     };
     (async function(){
