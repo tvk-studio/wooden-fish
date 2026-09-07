@@ -1,4 +1,4 @@
-const CACHE = 'mokugyo-v2';
+const CACHE = 'mokugyo-v3';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.add(self.registration.scope)));
   self.skipWaiting();
