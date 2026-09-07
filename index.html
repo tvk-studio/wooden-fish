@@ -386,7 +386,7 @@
     hydrated = true;
     try{
       var sharedHall = new URL(location.href).searchParams.get('hall');
-      if(sharedHall && !raw){
+      if(sharedHall){
         state.hallName = sharedHall.slice(0, 14);
         save();
       }
